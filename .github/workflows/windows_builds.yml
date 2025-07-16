@@ -127,7 +127,7 @@ jobs:
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
           repo: godotengine/godot-nir-static
-          version: 23.1.9-1
+          version: tags/23.1.9-1
           file: godot-nir-static-x86_64-msvc-release.zip
           target: nir/nir.zip
 
@@ -136,7 +136,7 @@ jobs:
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
           repo: godotengine/godot-nir-static
-          version: 23.1.9-1
+          version: tags/23.1.9-1
           file: godot-nir-static-x86_32-msvc-release.zip
           target: nir/nir.zip
       
@@ -145,7 +145,7 @@ jobs:
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
           repo: godotengine/godot-nir-static
-          version: 23.1.9-1
+          version: tags/23.1.9-1
           file: godot-nir-static-arm64-msvc-release.zip
           target: nir/nir.zip
       
