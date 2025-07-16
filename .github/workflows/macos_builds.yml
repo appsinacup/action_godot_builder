@@ -49,27 +49,43 @@ jobs:
           ref: ${{ inputs.branch }}
           submodules: recursive
 
+      - name: Select Xcode 16
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app
+
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
           cache-name: macos-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
         continue-on-error: true
 
-      - name: Setup Vulkan SDK
-        run: |
-          sh misc/scripts/install_vulkan_sdk_macos.sh
-
       - name: Setup Python and SCons
         uses: ./.github/actions/godot-deps
 
+      - name: Download pre-built AccessKit
+        uses: dsaltares/fetch-gh-release-asset@1.1.2
+        with:
+          repo: AccessKit/accesskit-c
+          version: tags/0.16.0
+          file: accesskit-c-0.16.0.zip
+          target: accesskit-c-0.16.0/accesskit_c.zip
+
+      - name: Extract pre-built AccessKit
+        run: unzip -o accesskit-c-0.16.0/accesskit_c.zip
+
       - name: Setup Vulkan SDK
+        id: vulkan-sdk
         run: |
-          sh misc/scripts/install_vulkan_sdk_macos.sh
+          if sh misc/scripts/install_vulkan_sdk_macos.sh; then
+            echo "VULKAN_ENABLED=yes" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::macOS: Vulkan SDK installation failed, exiting."
+            exit 1
+          fi
 
       - name: Compilation (x86_64)
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }}
+          sconsflags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }} vulkan=${{ steps.vulkan-sdk.outputs.VULKAN_ENABLED }}
           platform: macos
           target: ${{ matrix.target }}
           scons-cache-limit: 0 # Only cap on second run to avoid purging unnecessarily
@@ -77,7 +93,7 @@ jobs:
       - name: Compilation (arm64)
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }}
+          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }} vulkan=${{ steps.vulkan-sdk.outputs.VULKAN_ENABLED }}
           platform: macos
           target: ${{ matrix.target }}
           scons-cache-limit: ${{ matrix.cache-limit }}
