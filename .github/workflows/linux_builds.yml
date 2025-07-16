@@ -58,6 +58,10 @@ jobs:
             target: template_release
             sconsflags: arch=arm64
           
+          - name: Template (target=template_release, arch=arm32)
+            target: template_release
+            sconsflags: arch=arm32
+          
           - name: Template (target=template_debug, arch=x86_64)
             target: template_debug
             sconsflags: arch=x86_64
@@ -69,6 +73,10 @@ jobs:
           - name: Template (target=template_debug, arch=arm64)
             target: template_debug
             sconsflags: arch=arm64
+          
+          - name: Template (target=template_debug, arch=arm32)
+            target: template_debug
+            sconsflags: arch=arm32
 
     steps:
       - name: Checkout
@@ -91,6 +99,11 @@ jobs:
       - name: wayland-scanner dependency
         run: |
           sudo apt-get install libwayland-bin
+      - name: Install 32-bit build dependencies
+        if: matrix.sconsflags == 'arch=x86'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib libc6-dev-i386
 
       - name: Free disk space on runner
         run: |
