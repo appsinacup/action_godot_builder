@@ -6,10 +6,10 @@ on:
         description: 'Repository to use for the build'
         required: false
         default: 'godotengine/godot'
-      branch:
-        description: 'Branch to use for the build'
+      tag:
+        description: 'tag to use for the build'
         required: false
-        default: '4.4'
+        default: '4.4.1-stable'
       production:
         description: 'Enable Production build'
         required: false
@@ -26,7 +26,7 @@ jobs:
     uses: ./.github/workflows/android_builds.yml
     with:
       repo: ${{ inputs.repo }}
-      branch: ${{ inputs.branch }}
+      tag: ${{ inputs.tag }}
       production: ${{ inputs.production }}
 
   ios-build:
@@ -34,7 +34,7 @@ jobs:
     uses: ./.github/workflows/ios_builds.yml
     with:
       repo: ${{ inputs.repo }}
-      branch: ${{ inputs.branch }}
+      tag: ${{ inputs.tag }}
       production: ${{ inputs.production }}
 
   linux-build:
@@ -42,7 +42,7 @@ jobs:
     uses: ./.github/workflows/linux_builds.yml
     with:
       repo: ${{ inputs.repo }}
-      branch: ${{ inputs.branch }}
+      tag: ${{ inputs.tag }}
       production: ${{ inputs.production }}
 
   macos-build:
@@ -50,7 +50,7 @@ jobs:
     uses: ./.github/workflows/macos_builds.yml
     with:
       repo: ${{ inputs.repo }}
-      branch: ${{ inputs.branch }}
+      tag: ${{ inputs.tag }}
       production: ${{ inputs.production }}
 
   windows-build:
@@ -58,7 +58,7 @@ jobs:
     uses: ./.github/workflows/windows_builds.yml
     with:
       repo: ${{ inputs.repo }}
-      branch: ${{ inputs.branch }}
+      tag: ${{ inputs.tag }}
       production: ${{ inputs.production }}
 
   web-build:
@@ -66,5 +66,53 @@ jobs:
     uses: ./.github/workflows/web_builds.yml
     with:
       repo: ${{ inputs.repo }}
-      branch: ${{ inputs.branch }}
+      tag: ${{ inputs.tag }}
       production: ${{ inputs.production }}
+
+  release:
+    name: 🚀 Create Release
+    needs:
+      - android-build
+      - ios-build
+      - linux-build
+      - macos-build
+      - windows-build
+      - web-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List downloaded artifacts
+        run: ls -R artifacts
+
+      - name: Package per-platform editors and templates
+        run: |
+          mkdir -p release/templates/${{ inputs.tag }}
+          cp artifacts/linux-*/godot.linuxbsd.editor.x86_64* release/Godot_v4.4-stable_linux.x86_64.zip
+          cp artifacts/windows-*/godot.windows.editor.x86_64* release/Godot_v4.4-stable_win64.exe.zip
+          cp artifacts/macos-*/godot.macos.editor.universal* release/Godot_v4.4-stable_macos.universal.zip
+          cp artifacts/web-*/godot.web.editor* release/Godot_v4.4-stable_web.zip
+          cp artifacts/android-*/godot.android.editor* release/Godot_v4.4-stable_android.zip
+          cp artifacts/ios-*/godot.ios.editor* release/Godot_v4.4-stable_ios.zip
+
+          cp artifacts/linux-*/godot.linuxbsd.template_release.x86_64* release/templates/4.4.stable/linux_x86_64_release.zip
+          cp artifacts/windows-*/godot.windows.template_release.x86_64* release/templates/${{ inputs.tag }}/windows_x86_64_release.zip
+
+          cd release
+          zip -r Godot_v${{ inputs.tag }}_export_templates.tpz templates
+          cd ..
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: "Custom Godot Release ${{ github.ref_name }}"
+          files: |
+            release/Godot_v${{ inputs.tag }}_linux.x86_64.zip
+            release/Godot_v${{ inputs.tag }}_win64.exe.zip
+            release/Godot_v${{ inputs.tag }}_macos.universal.zip
+            release/Godot_v${{ inputs.tag }}_export_templates.tpz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

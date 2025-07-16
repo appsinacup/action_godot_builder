@@ -10,7 +10,7 @@ on:
         description: 'Repository to use for the build'
         default: 'godotengine/godot'
         type: string
-      branch:
+      tag:
         description: 'Branch to use for the build'
         default: 'master'
         type: string
@@ -46,7 +46,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ inputs.repo }}
-          ref: ${{ inputs.branch }}
+          ref: ${{ inputs.tag }}
           submodules: recursive
 
       - name: Select Xcode 16
@@ -92,7 +92,7 @@ jobs:
       - name: Compilation (arm64)
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }} vulkan=${{ steps.vulkan-sdk.outputs.VULKAN_ENABLED }}
+          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }} vulkan=${{ steps.vulkan-sdk.outputs.VULKAN_ENABLED }} generate_bundle=yes
           platform: macos
           target: ${{ matrix.target }}
 
@@ -108,6 +108,15 @@ jobs:
           rm ./bin/godot.macos.${{ matrix.target }}.x86_64 ./bin/godot.macos.${{ matrix.target }}.arm64
           strip bin/godot.*
           chmod +x bin/godot.*
+
+      - name: Create bundle
+        if: matrix.target == 'editor'
+        run: |
+          cp -r misc/dist/macos_tools.app ./bin/Godot.app
+          mkdir -p bin/Godot.app/Contents/MacOS
+          cp bin/godot.macos.editor.universal bin/Godot.app/Contents/MacOS/Godot
+          chmod +x bin/Godot.app/Contents/MacOS/Godot
+          codesign --force --timestamp --options=runtime --entitlements misc/dist/macos/editor.entitlements -s - bin/Godot.app
 
       - name: Upload artifact
         uses: ./.github/actions/upload-artifact
