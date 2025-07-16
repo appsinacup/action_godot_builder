@@ -79,8 +79,8 @@ jobs:
       - name: Download pre-built Android Swappy Frame Pacing Library
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
-          repo: darksylinc/godot-swappy
-          version: tags/v2023.3.0.0
+          repo: godotengine/godot-swappy
+          version: tags/from-source-2025-01-31
           file: godot-swappy.7z
           target: swappy/godot-swappy.7z
 
@@ -115,10 +115,31 @@ jobs:
           cd platform/android/java
           ./gradlew generateGodotEditor
           ./gradlew generateGodotHorizonOSEditor
+          ./gradlew generateGodotPicoOSEditor
           cd ../../..
           ls -l bin/android_editor_builds/
+
+          # Separate different editors for multiple artifacts
+          mkdir horizonos
+          mv bin/android_editor_builds/*-horizonos-* horizonos
+          mkdir picoos
+          mv bin/android_editor_builds/*-picoos-* picoos
 
       - name: Upload artifact
         uses: ./.github/actions/upload-artifact
         with:
           name: android-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
+
+      - name: Upload artifact (Horizon OS)
+        if: matrix.target == 'editor'
+        uses: ./.github/actions/upload-artifact
+        with:
+          name: android-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}-horizonos
+          path: horizonos
+
+      - name: Upload artifact (PICO OS)
+        if: matrix.target == 'editor'
+        uses: ./.github/actions/upload-artifact
+        with:
+          name: android-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}-picoos
+          path: picoos

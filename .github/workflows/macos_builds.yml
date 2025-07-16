@@ -55,6 +55,10 @@ jobs:
           cache-name: macos-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
         continue-on-error: true
 
+      - name: Setup Vulkan SDK
+        run: |
+          sh misc/scripts/install_vulkan_sdk_macos.sh
+
       - name: Setup Python and SCons
         uses: ./.github/actions/godot-deps
 
