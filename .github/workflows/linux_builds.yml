@@ -106,6 +106,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-multilib g++-multilib libc6-dev-i386 libstdc++6:i386
 
+      - name: Install ARM64 build dependencies
+        if: matrix.sconsflags == 'arch=arm64'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libc6-dev-arm64-cross
+
+      - name: Install ARM32 build dependencies
+        if: matrix.sconsflags == 'arch=arm32'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libc6-dev-armhf-cross
+
       - name: Free disk space on runner
         run: |
           echo "Disk usage before:" && df -h
