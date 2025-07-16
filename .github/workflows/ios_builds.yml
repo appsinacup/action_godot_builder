@@ -4,7 +4,7 @@ on:
     inputs:
       production:
         description: 'Enable Production build'
-        default: 'false'
+        default: false
         type: boolean
       repo:
         description: 'Repository to use for the build'
