@@ -2,10 +2,14 @@ name: 🔗 GHA
 on:
   workflow_dispatch:
     inputs:
-      disable_static_checks:
-        description: 'Disable Static Checks'
+      repo:
+        description: 'Repository to use for the build'
         required: false
-        default: 'false'
+        default: 'godotengine/godot'
+      branch:
+        description: 'Branch to use for the build'
+        required: false
+        default: '4.4'
       production:
         description: 'Enable Production build'
         required: false
@@ -16,20 +20,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # First stage: Only static checks, fast and prevent expensive builds from running.
-
-  static-checks:
-    if: "!inputs.disable_static_checks"
-    name: 📊 Static checks
-    uses: ./.github/workflows/static_checks.yml
-
-  # Second stage: Run all the builds and some of the tests.
-
   android-build:
     name: 🤖 Android
     needs: static-checks
     uses: ./.github/workflows/android_builds.yml
     with:
+      repo: ${{ inputs.repo }}
+      branch: ${{ inputs.branch }}
       production: ${{ inputs.production }}
 
   ios-build:
@@ -37,6 +34,8 @@ jobs:
     needs: static-checks
     uses: ./.github/workflows/ios_builds.yml
     with:
+      repo: ${{ inputs.repo }}
+      branch: ${{ inputs.branch }}
       production: ${{ inputs.production }}
 
   linux-build:
@@ -44,6 +43,8 @@ jobs:
     needs: static-checks
     uses: ./.github/workflows/linux_builds.yml
     with:
+      repo: ${{ inputs.repo }}
+      branch: ${{ inputs.branch }}
       production: ${{ inputs.production }}
 
   macos-build:
@@ -51,6 +52,8 @@ jobs:
     needs: static-checks
     uses: ./.github/workflows/macos_builds.yml
     with:
+      repo: ${{ inputs.repo }}
+      branch: ${{ inputs.branch }}
       production: ${{ inputs.production }}
 
   windows-build:
@@ -58,6 +61,8 @@ jobs:
     needs: static-checks
     uses: ./.github/workflows/windows_builds.yml
     with:
+      repo: ${{ inputs.repo }}
+      branch: ${{ inputs.branch }}
       production: ${{ inputs.production }}
 
   web-build:
@@ -65,16 +70,6 @@ jobs:
     needs: static-checks
     uses: ./.github/workflows/web_builds.yml
     with:
+      repo: ${{ inputs.repo }}
+      branch: ${{ inputs.branch }}
       production: ${{ inputs.production }}
-
-  # Third stage: Run auxiliary tests using build artifacts from previous jobs.
-
-  # Can be turned off for PRs that intentionally break compat with godot-cpp,
-  # until both the upstream PR and the matching godot-cpp changes are merged.
-  godot-cpp-test:
-    name: 🪲 Godot CPP
-    # This can be changed to depend on another platform, if we decide to use it for
-    # godot-cpp instead. Make sure to move the .github/actions/godot-api-dump step
-    # appropriately.
-    needs: linux-build
-    uses: ./.github/workflows/godot_cpp_test.yml

@@ -6,6 +6,14 @@ on:
         description: 'Enable Production build'
         default: 'false'
         type: boolean
+      repo:
+        description: 'Repository to use for the build'
+        default: 'godotengine/godot'
+        type: string
+      branch:
+        description: 'Branch to use for the build'
+        default: 'master'
+        type: string
 
 # Global Settings
 env:
@@ -37,6 +45,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          repository: ${{ inputs.repo }}
+          ref: ${{ inputs.branch }}
           submodules: recursive
 
       - name: Restore Godot build cache
