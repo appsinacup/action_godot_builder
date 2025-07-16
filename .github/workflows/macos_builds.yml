@@ -88,7 +88,6 @@ jobs:
           sconsflags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }} vulkan=${{ steps.vulkan-sdk.outputs.VULKAN_ENABLED }}
           platform: macos
           target: ${{ matrix.target }}
-          scons-cache-limit: 0 # Only cap on second run to avoid purging unnecessarily
 
       - name: Compilation (arm64)
         uses: ./.github/actions/godot-build
@@ -96,7 +95,6 @@ jobs:
           sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }} vulkan=${{ steps.vulkan-sdk.outputs.VULKAN_ENABLED }}
           platform: macos
           target: ${{ matrix.target }}
-          scons-cache-limit: ${{ matrix.cache-limit }}
 
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
