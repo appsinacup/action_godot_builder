@@ -22,7 +22,6 @@ concurrency:
 jobs:
   android-build:
     name: 🤖 Android
-    needs: static-checks
     uses: ./.github/workflows/android_builds.yml
     with:
       repo: ${{ inputs.repo }}
@@ -31,7 +30,6 @@ jobs:
 
   ios-build:
     name: 🍏 iOS
-    needs: static-checks
     uses: ./.github/workflows/ios_builds.yml
     with:
       repo: ${{ inputs.repo }}
@@ -40,7 +38,6 @@ jobs:
 
   linux-build:
     name: 🐧 Linux
-    needs: static-checks
     uses: ./.github/workflows/linux_builds.yml
     with:
       repo: ${{ inputs.repo }}
@@ -49,7 +46,6 @@ jobs:
 
   macos-build:
     name: 🍎 macOS
-    needs: static-checks
     uses: ./.github/workflows/macos_builds.yml
     with:
       repo: ${{ inputs.repo }}
@@ -58,7 +54,6 @@ jobs:
 
   windows-build:
     name: 🏁 Windows
-    needs: static-checks
     uses: ./.github/workflows/windows_builds.yml
     with:
       repo: ${{ inputs.repo }}
@@ -67,7 +62,6 @@ jobs:
 
   web-build:
     name: 🌐 Web
-    needs: static-checks
     uses: ./.github/workflows/web_builds.yml
     with:
       repo: ${{ inputs.repo }}
