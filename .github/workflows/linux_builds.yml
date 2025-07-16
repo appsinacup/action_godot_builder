@@ -1,0 +1,131 @@
+name: 🐧 Linux Builds
+on:
+  workflow_call:
+    inputs:
+      production:
+        description: 'Enable Production build'
+        default: 'false'
+        type: boolean
+
+# Global Settings
+env:
+  # Used for the cache key. Add version suffix to force clean build.
+  GODOT_BASE_BRANCH: master
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes module_text_server_fb_enabled=yes strict_checks=yes
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  TSAN_OPTIONS: suppressions=misc/error_suppressions/tsan.txt
+  UBSAN_OPTIONS: suppressions=misc/error_suppressions/ubsan.txt
+
+jobs:
+  build-linux:
+    # Stay one LTS before latest to increase portability of Linux artifacts.
+    runs-on: ubuntu-22.04
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Editor (target=editor arch=x86_64)
+            target: editor
+            sconsflags: arch=x86_64
+
+          - name: Editor (target=editor arch=x86)
+            target: editor
+            sconsflags: arch=x86
+          
+          - name: Editor (target=editor arch=arm64)
+            target: editor
+            sconsflags: arch=arm64
+          
+          - name: Template (target=template_release, arch=x86_64)
+            target: template_release
+            sconsflags: arch=x86_64
+          
+          - name: Template (target=template_release, arch=x86)
+            target: template_release
+            sconsflags: arch=x86
+          
+          - name: Template (target=template_release, arch=arm64)
+            target: template_release
+            sconsflags: arch=arm64
+          
+          - name: Template (target=template_debug, arch=x86_64)
+            target: template_debug
+            sconsflags: arch=x86_64
+          
+          - name: Template (target=template_debug, arch=x86)
+            target: template_debug
+            sconsflags: arch=x86
+          
+          - name: Template (target=template_debug, arch=arm64)
+            target: template_debug
+            sconsflags: arch=arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # Need newer mesa for lavapipe to work properly.
+      #- name: Linux dependencies for tests
+      #  if: matrix.proj-test
+      #  run: |
+      #    sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+      #    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EB8B81E14DA65431D7504EA8F63F0F2B90935439
+      #    sudo add-apt-repository "deb https://ppa.launchpadcontent.net/kisak/turtle/ubuntu ${{ matrix.os == 'ubuntu-20.04' && 'focal' || 'jammy' }} main"
+      #    sudo apt-get install -qq mesa-vulkan-drivers
+
+      # TODO: Figure out somehow how to embed this one.
+      - name: wayland-scanner dependency
+        run: |
+          sudo apt-get install libwayland-bin
+
+      - name: Free disk space on runner
+        run: |
+          echo "Disk usage before:" && df -h
+          sudo rm -rf /usr/local/lib/android
+          echo "Disk usage after:" && df -h
+
+      - name: Restore Godot build cache
+        uses: ./.github/actions/godot-cache-restore
+        with:
+          cache-name: linux-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
+        continue-on-error: true
+
+      - name: Setup Python and SCons
+        if: "!matrix.legacy-scons"
+        uses: ./.github/actions/godot-deps
+
+      - name: Setup Python and SCons (legacy versions)
+        if: matrix.legacy-scons
+        uses: ./.github/actions/godot-deps
+        with:
+          # Sync with Ensure*Version in SConstruct.
+          python-version: 3.8
+          scons-version: 4.0
+
+      - name: Compilation
+        uses: ./.github/actions/godot-build
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }}
+          platform: linuxbsd
+          target: ${{ matrix.target }}
+          scons-cache-limit: 1
+
+      - name: Save Godot build cache
+        uses: ./.github/actions/godot-cache-save
+        with:
+          cache-name: linux-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
+        continue-on-error: true
+
+      - name: Prepare artifact
+        run: |
+          strip bin/godot.*
+          chmod +x bin/godot.*
+
+      - name: Upload artifact
+        uses: ./.github/actions/upload-artifact
+        with:
+          name: linux-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}

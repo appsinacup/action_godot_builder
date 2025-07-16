@@ -1,0 +1,64 @@
+name: 🍏 iOS Builds
+on:
+  workflow_call:
+    inputs:
+      production:
+        description: 'Enable Production build'
+        default: 'false'
+        type: boolean
+
+# Global Settings
+env:
+  # Used for the cache key. Add version suffix to force clean build.
+  GODOT_BASE_BRANCH: master
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no module_text_server_fb_enabled=yes strict_checks=yes
+
+jobs:
+  ios-template:
+    runs-on: macos-latest
+    name: ${{ matrix.name }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Template (target=template_release)
+            target: template_release
+            sconsflags: arch=arm64
+          
+          - name: Template (target=template_debug)
+            target: template_debug
+            sconsflags: arch=arm64
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Restore Godot build cache
+        uses: ./.github/actions/godot-cache-restore
+        with:
+          cache-name: ios-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
+        continue-on-error: true
+
+      - name: Setup Python and SCons
+        uses: ./.github/actions/godot-deps
+
+      - name: Compilation
+        uses: ./.github/actions/godot-build
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }}
+          platform: ios
+          target: ${{ matrix.target }}
+          scons-cache-limit: 1
+
+      - name: Save Godot build cache
+        uses: ./.github/actions/godot-cache-save
+        with:
+          cache-name: ios-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
+        continue-on-error: true
+
+      - name: Upload artifact
+        uses: ./.github/actions/upload-artifact
+        with:
+          name: ios-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}

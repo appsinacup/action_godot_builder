@@ -1,0 +1,113 @@
+name: 🏁 Windows Builds
+on:
+  workflow_call:
+    inputs:
+      production:
+        description: 'Enable Production build'
+        default: 'false'
+        type: boolean
+
+# Global Settings
+# SCONS_CACHE for windows must be set in the build environment
+env:
+  # Used for the cache key. Add version suffix to force clean build.
+  GODOT_BASE_BRANCH: master
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes module_text_server_fb_enabled=yes d3d12=yes strict_checks=yes "angle_libs=${{ github.workspace }}/" debug_symbols=no vsproj=yes vsproj_gen_only=no windows_subsystem=console
+  SCONS_CACHE_MSVC_CONFIG: true
+
+jobs:
+  build-windows:
+    # Windows 10 with latest image
+    runs-on: windows-latest
+    name: ${{ matrix.name }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Editor (target=editor, arch=x86_64)
+            target: editor
+            sconsflags: arch=x86_64
+          
+          - name: Editor (target=editor, arch=x86)
+            target: editor
+            sconsflags: arch=x86
+
+          - name: Editor (target=editor, arch=arm64)
+            target: editor
+            sconsflags: arch=arm64
+
+          - name: Template (target=template_release, arch=x86_64)
+            target: template_release
+            sconsflags: arch=x86_64
+          
+          - name: Template (target=template_release, arch=x86)
+            target: template_release
+            sconsflags: arch=x86
+          
+          - name: Template (target=template_release, arch=arm64)
+            target: template_release
+            sconsflags: arch=arm64
+          
+          - name: Template (target=template_debug, arch=x86_64)
+            target: template_debug
+            sconsflags: arch=x86_64
+          
+          - name: Template (target=template_debug, arch=x86)
+            target: template_debug
+            sconsflags: arch=x86
+          
+          - name: Template (target=template_debug, arch=arm64)
+            target: template_debug
+            sconsflags: arch=arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Restore Godot build cache
+        uses: ./.github/actions/godot-cache-restore
+        with:
+          cache-name: windows-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
+        continue-on-error: true
+
+      - name: Setup Python and SCons
+        uses: ./.github/actions/godot-deps
+
+      - name: Download Direct3D 12 SDK components
+        run: python ./misc/scripts/install_d3d12_sdk_windows.py
+
+      - name: Download pre-built ANGLE static libraries
+        uses: dsaltares/fetch-gh-release-asset@1.1.2
+        with:
+          repo: godotengine/godot-angle-static
+          version: tags/chromium/6601.2
+          file: godot-angle-static-x86_64-msvc-release.zip
+          target: angle/angle.zip
+
+      - name: Extract pre-built ANGLE static libraries
+        run: Expand-Archive -Force angle/angle.zip ${{ github.workspace }}/
+
+      - name: Compilation
+        uses: ./.github/actions/godot-build
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }}
+          platform: windows
+          target: ${{ matrix.target }}
+          scons-cache-limit: 2
+
+      - name: Save Godot build cache
+        uses: ./.github/actions/godot-cache-save
+        with:
+          cache-name: windows-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
+        continue-on-error: true
+
+      - name: Prepare artifact
+        run: |
+          Remove-Item bin/* -Include *.exp,*.lib,*.pdb -Force
+
+      - name: Upload artifact
+        uses: ./.github/actions/upload-artifact
+        with:
+          name: windows-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
