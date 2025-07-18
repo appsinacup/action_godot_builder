@@ -18,13 +18,6 @@ on:
 jobs:
   release:
     name: 🚀 Create Release
-    needs:
-      - android-build
-      - ios-build
-      - linux-build
-      - macos-build
-      - windows-build
-      - web-build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
