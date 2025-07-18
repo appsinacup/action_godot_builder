@@ -73,13 +73,6 @@ jobs:
         run: |
           sh misc/scripts/install_vulkan_sdk_macos.sh
 
-      - name: Mac generate bundle (arm64)
-        uses: ./.github/actions/godot-build
-        with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }} generate_bundle=yes
-          platform: macos
-          target: template_release
-
       - name: Mac Create Editor Bundle
         run: |
           cp -r misc/dist/macos_tools.app ./bin/Godot.app
