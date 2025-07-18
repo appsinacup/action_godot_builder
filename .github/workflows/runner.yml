@@ -90,6 +90,7 @@ jobs:
       - name: Package per-platform editors and templates
         run: |
           mkdir -p release/templates/${{ inputs.tag }}
+          
           cp artifacts/linux-*/godot.linuxbsd.editor.x86_64* release/Godot_v4.4-stable_linux.x86_64.zip
           cp artifacts/windows-*/godot.windows.editor.x86_64* release/Godot_v4.4-stable_win64.exe.zip
           cp artifacts/macos-*/godot.macos.editor.universal* release/Godot_v4.4-stable_macos.universal.zip
