@@ -104,26 +104,31 @@ jobs:
           VERSION=${{ inputs.tag }}
           VERSION_CLEAN=${VERSION//-/.}
           mkdir -p release/templates/$VERSION_CLEAN
-
+          
           # Editors
-          cp bin/godot.linuxbsd.editor.x86_64* release/Godot_v${VERSION_CLEAN}_linux.x86_64.zip || exit
-          cp bin/godot.linuxbsd.editor.x86* release/Godot_v${VERSION_CLEAN}_linux.x86_32.zip || exit
-          cp bin/godot.windows.editor.x86_64* release/Godot_v${VERSION_CLEAN}_win64.exe.zip || exit
-          cp bin/godot.windows.editor.x86* release/Godot_v${VERSION_CLEAN}_win32.exe.zip || exit
-          cp bin/godot.windows.editor.arm64* release/Godot_v${VERSION_CLEAN}_windows_arm64.exe.zip || exit
-          cp bin/godot.macos.editor.universal* release/Godot_v${VERSION_CLEAN}_macos.universal.zip || exit
-          cp bin/Godot.app.zip release/Godot_v${VERSION_CLEAN}_macos.app.zip || exit
+          cp bin/godot.linuxbsd.editor.x86_64* release/Godot_v${VERSION_CLEAN}_linux.x86_64.zip
+          cp bin/godot.linuxbsd.editor.x86* release/Godot_v${VERSION_CLEAN}_linux.x86_32.zip
+          cp bin/godot.windows.editor.x86_64* release/Godot_v${VERSION_CLEAN}_win64.exe.zip
+          cp bin/godot.windows.editor.x86* release/Godot_v${VERSION_CLEAN}_win32.exe.zip
+          cp bin/godot.windows.editor.arm64* release/Godot_v${VERSION_CLEAN}_windows_arm64.exe.zip
+          cp bin/godot.macos.editor.universal* release/Godot_v${VERSION_CLEAN}_macos.universal.zip
+          cp bin/Godot.app.zip release/Godot_v${VERSION_CLEAN}_macos.app.zip
 
-          # Export templates
-          cp bin/godot.linuxbsd.template_release.x86_64* release/templates/$VERSION_CLEAN/linux_x86_64_release.zip || exit
-          cp bin/godot.linuxbsd.template_release.x86* release/templates/$VERSION_CLEAN/linux_x86_32_release.zip || exit
-          cp bin/godot.windows.template_release.x86_64* release/templates/$VERSION_CLEAN/windows_x86_64_release.zip || exit
-          cp bin/godot.windows.template_release.x86* release/templates/$VERSION_CLEAN/windows_x86_32_release.zip || exit
-          cp bin/godot.windows.template_release.arm64* release/templates/$VERSION_CLEAN/windows_arm64_release.zip || exit
-          cp bin/godot.macos.template_release.universal* release/templates/$VERSION_CLEAN/macos_universal_release.zip || exit
-          cp bin/macos.zip release/templates/$VERSION_CLEAN/macos_bundle.zip || exit
-          cp bin/godot.web.template_release* release/templates/$VERSION_CLEAN/web_release.zip || exit
-          # Add Android/iOS templates as needed
+          # Templates
+          cp bin/godot.linuxbsd.template_* "release/templates/"
+          cp bin/windows*.exe "release/templates/"
+          cp macos.zip "release/templates/macos.zip"
+          cp -f bin/godot_ios.zip "release/templates/ios.zip"
+          cp -f bin/android*.apk "release/templates/"
+          cp -f bin/android_source.zip "release/templates/"
+          cp bin/godot.web.template_release.wasm32.zip "release/templates/web_release.zip"
+          cp bin/godot.web.template_debug.wasm32.zip "release/templates/web_debug.zip"
+          cp bin/godot.web.template_release.wasm32.nothreads.zip "release/templates/web_nothreads_release.zip"
+          cp bin/godot.web.template_debug.wasm32.nothreads.zip "release/templates/web_nothreads_debug.zip"
+          cp bin/godot.web.template_release.wasm32.dlink.zip "release/templates/web_dlink_release.zip"
+          cp bin/godot.web.template_debug.wasm32.dlink.zip "release/templates/web_dlink_debug.zip"
+          cp bin/godot.web.template_release.wasm32.nothreads.dlink.zip "release/templates/web_nothreads_dlink_release.zip"
+          cp bin/godot.web.template_debug.wasm32.nothreads.dlink.zip "release/templates/web_nothreads_dlink_debug.zip"
 
           # Create export templates .tpz
           cd release

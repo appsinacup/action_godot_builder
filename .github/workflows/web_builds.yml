@@ -61,6 +61,22 @@ jobs:
           - name: Template w/o threads (target=template_debug, threads=no)
             target: template_debug
             sconsflags: threads=no
+          
+          - name: Template w/ threads (target=template_release, threads=yes dlink=yes)
+            target: template_release
+            sconsflags: threads=yes dlink=yes
+
+          - name: Template w/o threads (target=template_release, threads=no dlink=yes)
+            target: template_release
+            sconsflags: threads=no dlink=yes
+
+          - name: Template w/ threads (target=template_debug, threads=yes dlink=yes)
+            target: template_debug
+            sconsflags: threads=yes dlink=yes
+
+          - name: Template w/o threads (target=template_debug, threads=no dlink=yes)
+            target: template_debug
+            sconsflags: threads=no dlink=yes
     steps:
       - name: Checkout
         uses: actions/checkout@v4
