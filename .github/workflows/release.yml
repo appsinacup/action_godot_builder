@@ -65,14 +65,14 @@ jobs:
         with:
           sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }} generate_bundle=yes
           platform: macos
-          target: ${{ matrix.target }}
+          target: template_release
 
       - name: iOS generate bundle (arm64)
         uses: ./.github/actions/godot-build
         with:
           sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }} generate_bundle=yes
           platform: ios
-          target: ${{ matrix.target }}
+          target: template_release
 
       - name: Mac Create Editor Bundle
         working-directory: bin
