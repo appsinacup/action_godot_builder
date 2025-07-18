@@ -14,12 +14,28 @@ on:
         description: 'Branch to use for the build'
         default: 'master'
         type: string
+      encryption_key:
+        description: Encryption key for the build
+        required: false
+        type: string
+        default: '7f5ddb606888db9a20dbf00b76f9b426f81e48d299c7093d5119b39967bae8f1'
+      build_profile:
+        description: 'Build profile file path.'
+        required: false
+        type: string
+        default: ''
+      module_flags:
+        description: 'Extra module flags, e.g. module_webm_enabled=no'
+        required: false
+        type: string
+        default: ''
 
 # Global Settings
 env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: 4.4
-  SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no module_text_server_fb_enabled=yes strict_checks=yes swappy=yes
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no module_text_server_fb_enabled=yes strict_checks=yes swappy=yes ${{ inputs.module_flags }} build_profile=${{ inputs.build_profile }}
+  SCRIPT_AES256_ENCRYPTION_KEY: ${{ inputs.encryption_key }}
 
 jobs:
   build-android:

@@ -5,11 +5,28 @@ on:
       repo:
         description: 'Repository to use for the build'
         required: false
+        type: string
         default: 'godotengine/godot'
       tag:
         description: 'tag to use for the build'
         required: false
+        type: string
         default: '4.4.1-stable'
+      encryption_key:
+        description: Encryption key for the build
+        required: false
+        type: string
+        default: '7f5ddb606888db9a20dbf00b76f9b426f81e48d299c7093d5119b39967bae8f1'
+      build_profile:
+        description: 'Build profile file path.'
+        required: false
+        type: string
+        default: ''
+      module_flags:
+        description: 'Extra module flags, e.g. module_webm_enabled=no'
+        required: false
+        type: string
+        default: ''
       production:
         description: 'Enable Production build'
         required: false
@@ -28,6 +45,9 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       production: ${{ inputs.production }}
+      encryption_key: ${{ inputs.encryption_key }}
+      build_profile: ${{ inputs.build_profile }}
+      module_flags: ${{ inputs.module_flags }}
 
   ios-build:
     name: 🍏 iOS
@@ -36,6 +56,9 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       production: ${{ inputs.production }}
+      encryption_key: ${{ inputs.encryption_key }}
+      build_profile: ${{ inputs.build_profile }}
+      module_flags: ${{ inputs.module_flags }}
 
   linux-build:
     name: 🐧 Linux
@@ -44,7 +67,10 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       production: ${{ inputs.production }}
-
+      encryption_key: ${{ inputs.encryption_key }}
+      build_profile: ${{ inputs.build_profile }}
+      module_flags: ${{ inputs.module_flags }}
+  
   macos-build:
     name: 🍎 macOS
     uses: ./.github/workflows/macos_builds.yml
@@ -52,6 +78,9 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       production: ${{ inputs.production }}
+      encryption_key: ${{ inputs.encryption_key }}
+      build_profile: ${{ inputs.build_profile }}
+      module_flags: ${{ inputs.module_flags }}
 
   windows-build:
     name: 🏁 Windows
@@ -60,6 +89,9 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       production: ${{ inputs.production }}
+      encryption_key: ${{ inputs.encryption_key }}
+      build_profile: ${{ inputs.build_profile }}
+      module_flags: ${{ inputs.module_flags }}
 
   web-build:
     name: 🌐 Web
@@ -68,6 +100,9 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       production: ${{ inputs.production }}
+      encryption_key: ${{ inputs.encryption_key }}
+      build_profile: ${{ inputs.build_profile }}
+      module_flags: ${{ inputs.module_flags }}
 
   release:
     name: 🚀 Create Release
@@ -83,3 +118,6 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       production: ${{ inputs.production }}
+      encryption_key: ${{ inputs.encryption_key }}
+      build_profile: ${{ inputs.build_profile }}
+      module_flags: ${{ inputs.module_flags }}
