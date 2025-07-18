@@ -129,3 +129,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: macos-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
+          path: bin
