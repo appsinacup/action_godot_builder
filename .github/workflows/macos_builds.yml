@@ -49,6 +49,9 @@ jobs:
           ref: ${{ inputs.tag }}
           submodules: recursive
       
+      - name: Select Xcode 16
+        run: sudo xcode-select -s /Applications/Xcode_16.2.app
+      
       - name: Checkout script repo for install_vulkan_sdk_macos.sh
         uses: actions/checkout@v4
         with:
