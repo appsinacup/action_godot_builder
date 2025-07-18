@@ -15,6 +15,12 @@ on:
         default: 'master'
         type: string
 
+# Global Settings
+env:
+  # Used for the cache key. Add version suffix to force clean build.
+  GODOT_BASE_BRANCH: 4.4
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes debug_symbols=no
+
 jobs:
   release:
     name: 🚀 Create Release
@@ -38,16 +44,34 @@ jobs:
             windows-*
             web-*
 
-      - name: List downloaded artifacts
-        run: ls -R artifacts
+      - name: List downloaded bin
+        run: ls -R bin
+      
+      - name: Setup Python and SCons
+        uses: ./.github/actions/godot-deps
+
+      - name: Mac generate bundle (arm64)
+        uses: ./.github/actions/godot-build
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }} generate_bundle=yes
+          platform: macos
+          target: ${{ matrix.target }}
+
+      - name: iOS generate bundle (arm64)
+        uses: ./.github/actions/godot-build
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }} generate_bundle=yes
+          platform: ios
+          target: ${{ matrix.target }}
 
       - name: Mac Create Editor Bundle
         working-directory: bin
         run: |
+          scons 
           cp -r ../misc/dist/macos_tools.app ./Godot.app
-          mkdir -p bin/Godot.app/Contents/MacOS
-          cp bin/godot.macos.editor.universal bin/Godot.app/Contents/MacOS/Godot
-          chmod +x bin/Godot.app/Contents/MacOS/Godot
+          mkdir -p Godot.app/Contents/MacOS
+          cp godot.macos.editor.universal Godot.app/Contents/MacOS/Godot
+          chmod +x Godot.app/Contents/MacOS/Godot
           codesign --force --timestamp --options=runtime --entitlements misc/dist/macos/editor.entitlements -s - bin/Godot.app
 
       - name: Mac Create Template Bundle
@@ -100,38 +124,41 @@ jobs:
           mkdir -p release/templates/$VERSION_CLEAN
 
           # Editors
-          cp bin/godot.linuxbsd.editor.x86_64* release/Godot_v${VERSION_CLEAN}_linux.x86_64.zip || true
-          cp bin/godot.linuxbsd.editor.x86* release/Godot_v${VERSION_CLEAN}_linux.x86_32.zip || true
-          cp bin/godot.linuxbsd.editor.arm64* release/Godot_v${VERSION_CLEAN}_linux.arm64.zip || true
-          cp bin/godot.linuxbsd.editor.arm32* release/Godot_v${VERSION_CLEAN}_linux.arm32.zip || true
-          cp bin/godot.windows.editor.x86_64* release/Godot_v${VERSION_CLEAN}_win64.exe.zip || true
-          cp bin/godot.windows.editor.x86* release/Godot_v${VERSION_CLEAN}_win32.exe.zip || true
-          cp bin/godot.windows.editor.arm64* release/Godot_v${VERSION_CLEAN}_windows_arm64.exe.zip || true
-          cp bin/godot.macos.editor.universal* release/Godot_v${VERSION_CLEAN}_macos.universal.zip || true
-          cp bin/Godot.app.zip release/Godot_v${VERSION_CLEAN}_macos.app.zip || true
-          cp bin/godot.web.editor* release/Godot_v${VERSION_CLEAN}_web_editor.zip || true
-          cp bin/godot.android.editor.aab release/Godot_v${VERSION_CLEAN}_android_editor.aab || true
-          cp bin/godot.android.editor.apk release/Godot_v${VERSION_CLEAN}_android_editor.apk || true
-          cp bin/godot.android.editor_horizonos.apk release/Godot_v${VERSION_CLEAN}_android_editor_horizonos.apk || true
-          cp bin/godot.android.editor_picoos.apk release/Godot_v${VERSION_CLEAN}_android_editor_picoos.apk || true
-          cp bin/godot.ios.editor* release/Godot_v${VERSION_CLEAN}_ios_editor.zip || true
+          cp bin/godot.linuxbsd.editor.x86_64* release/Godot_v${VERSION_CLEAN}_linux.x86_64.zip || exit
+          cp bin/godot.linuxbsd.editor.x86* release/Godot_v${VERSION_CLEAN}_linux.x86_32.zip || exit
+          cp bin/godot.linuxbsd.editor.arm64* release/Godot_v${VERSION_CLEAN}_linux.arm64.zip || exit
+          cp bin/godot.linuxbsd.editor.arm32* release/Godot_v${VERSION_CLEAN}_linux.arm32.zip || exit
+          cp bin/godot.windows.editor.x86_64* release/Godot_v${VERSION_CLEAN}_win64.exe.zip || exit
+          cp bin/godot.windows.editor.x86* release/Godot_v${VERSION_CLEAN}_win32.exe.zip || exit
+          cp bin/godot.windows.editor.arm64* release/Godot_v${VERSION_CLEAN}_windows_arm64.exe.zip || exit
+          cp bin/godot.macos.editor.universal* release/Godot_v${VERSION_CLEAN}_macos.universal.zip || exit
+          cp bin/Godot.app.zip release/Godot_v${VERSION_CLEAN}_macos.app.zip || exit
+          cp bin/godot.web.editor* release/Godot_v${VERSION_CLEAN}_web_editor.zip || exit
+          cp bin/godot.android.editor.aab release/Godot_v${VERSION_CLEAN}_android_editor.aab || exit
+          cp bin/godot.android.editor.apk release/Godot_v${VERSION_CLEAN}_android_editor.apk || exit
+          cp bin/godot.android.editor_horizonos.apk release/Godot_v${VERSION_CLEAN}_android_editor_horizonos.apk || exit
+          cp bin/godot.android.editor_picoos.apk release/Godot_v${VERSION_CLEAN}_android_editor_picoos.apk || exit
+          cp bin/godot.ios.editor* release/Godot_v${VERSION_CLEAN}_ios_editor.zip || exit
 
           # Export templates
-          cp bin/godot.linuxbsd.template_release.x86_64* release/templates/$VERSION_CLEAN/linux_x86_64_release.zip || true
-          cp bin/godot.linuxbsd.template_release.x86* release/templates/$VERSION_CLEAN/linux_x86_32_release.zip || true
-          cp bin/godot.linuxbsd.template_release.arm64* release/templates/$VERSION_CLEAN/linux_arm64_release.zip || true
-          cp bin/godot.linuxbsd.template_release.arm32* release/templates/$VERSION_CLEAN/linux_arm32_release.zip || true
-          cp bin/godot.windows.template_release.x86_64* release/templates/$VERSION_CLEAN/windows_x86_64_release.zip || true
-          cp bin/godot.windows.template_release.x86* release/templates/$VERSION_CLEAN/windows_x86_32_release.zip || true
-          cp bin/godot.windows.template_release.arm64* release/templates/$VERSION_CLEAN/windows_arm64_release.zip || true
-          cp bin/godot.macos.template_release.universal* release/templates/$VERSION_CLEAN/macos_universal_release.zip || true
-          cp bin/macos.zip release/templates/$VERSION_CLEAN/macos_bundle.zip || true
-          cp bin/godot.web.template_release* release/templates/$VERSION_CLEAN/web_release.zip || true
+          cp bin/godot.linuxbsd.template_release.x86_64* release/templates/$VERSION_CLEAN/linux_x86_64_release.zip || exit
+          cp bin/godot.linuxbsd.template_release.x86* release/templates/$VERSION_CLEAN/linux_x86_32_release.zip || exit
+          cp bin/godot.linuxbsd.template_release.arm64* release/templates/$VERSION_CLEAN/linux_arm64_release.zip || exit
+          cp bin/godot.linuxbsd.template_release.arm32* release/templates/$VERSION_CLEAN/linux_arm32_release.zip || exit
+          cp bin/godot.windows.template_release.x86_64* release/templates/$VERSION_CLEAN/windows_x86_64_release.zip || exit
+          cp bin/godot.windows.template_release.x86* release/templates/$VERSION_CLEAN/windows_x86_32_release.zip || exit
+          cp bin/godot.windows.template_release.arm64* release/templates/$VERSION_CLEAN/windows_arm64_release.zip || exit
+          cp bin/godot.macos.template_release.universal* release/templates/$VERSION_CLEAN/macos_universal_release.zip || exit
+          cp bin/macos.zip release/templates/$VERSION_CLEAN/macos_bundle.zip || exit
+          cp bin/godot.web.template_release* release/templates/$VERSION_CLEAN/web_release.zip || exit
           # Add Android/iOS templates as needed
 
           # Create export templates .tpz
           cd release
           zip -r Godot_v${VERSION_CLEAN}_export_templates.tpz templates
+      
+      - name: List release directory
+        run: ls -R release
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -141,8 +168,8 @@ jobs:
           files: |
             release/Godot_v${{ inputs.tag }}_linux.x86_64.zip
             release/Godot_v${{ inputs.tag }}_linux.x86_32.zip
-            release/Godot_v${{ inputs.tag }}_linux.arm64.zip
-            release/Godot_v${{ inputs.tag }}_linux.arm32.zip
+            #release/Godot_v${{ inputs.tag }}_linux.arm64.zip
+            #release/Godot_v${{ inputs.tag }}_linux.arm32.zip
             release/Godot_v${{ inputs.tag }}_win64.exe.zip
             release/Godot_v${{ inputs.tag }}_win32.exe.zip
             release/Godot_v${{ inputs.tag }}_windows_arm64.exe.zip
@@ -155,19 +182,5 @@ jobs:
             release/Godot_v${{ inputs.tag }}_android_editor_picoos.apk
             release/Godot_v${{ inputs.tag }}_ios_editor.zip
             release/Godot_v${{ inputs.tag }}_export_templates.tpz
-            release/templates/${{ inputs.tag }}/linux_x86_64_release.zip
-            release/templates/${{ inputs.tag }}/linux_x86_32_release.zip
-            release/templates/${{ inputs.tag }}/linux_arm64_release.zip
-            release/templates/${{ inputs.tag }}/linux_arm32_release.zip
-            release/templates/${{ inputs.tag }}/windows_x86_64_release.zip
-            release/templates/${{ inputs.tag }}/windows_x86_32_release.zip
-            release/templates/${{ inputs.tag }}/windows_arm64_release.zip
-            release/templates/${{ inputs.tag }}/macos_universal_release.zip
-            release/templates/${{ inputs.tag }}/macos_bundle.zip
-            release/templates/${{ inputs.tag }}/web_release.zip
-            # Add Android/iOS template zips if present
-            release/godot-${{ inputs.tag }}.tar.xz
-            release/godot-${{ inputs.tag }}.tar.xz.sha256
-            release/godot-lib.${{ inputs.tag }}.stable.template_release.aar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
