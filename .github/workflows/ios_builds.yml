@@ -40,19 +40,8 @@ env:
 jobs:
   ios-template:
     runs-on: macos-latest
-    name: ${{ matrix.name }}
+    name: Template Builds
 
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: Template (target=template_release)
-            target: template_release
-            sconsflags: arch=arm64
-          
-          - name: Template (target=template_debug)
-            target: template_debug
-            sconsflags: arch=arm64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -64,7 +53,7 @@ jobs:
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
-          cache-name: ios-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
+          cache-name: ios-${{ inputs.production && 'production' || 'normal' }}
         continue-on-error: true
 
       - name: Setup Python and SCons
@@ -73,19 +62,27 @@ jobs:
       - name: Compilation
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }}
+          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.production && 'production=yes' || '' }}
           platform: ios
-          target: ${{ matrix.target }}
+          target: template_debug
+          scons-cache-limit: 1
+
+      - name: Compilation
+        uses: ./.github/actions/godot-build
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.production && 'production=yes' || '' }} generate_bundle=yes
+          platform: ios
+          target: template_release
           scons-cache-limit: 1
 
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
-          cache-name: ios-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
+          cache-name: ios-${{ inputs.production && 'production' || 'normal' }}
         continue-on-error: true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ios-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
+          name: ios-${{ inputs.production && 'production' || 'normal' }}
           path: bin

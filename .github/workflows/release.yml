@@ -80,13 +80,6 @@ jobs:
           platform: macos
           target: template_release
 
-      - name: iOS generate bundle (arm64)
-        uses: ./.github/actions/godot-build
-        with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }} generate_bundle=yes
-          platform: ios
-          target: template_release
-
       - name: Mac Create Editor Bundle
         run: |
           cp -r misc/dist/macos_tools.app ./bin/Godot.app
