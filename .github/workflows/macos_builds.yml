@@ -48,6 +48,12 @@ jobs:
           repository: ${{ inputs.repo }}
           ref: ${{ inputs.tag }}
           submodules: recursive
+      
+      - name: Checkout script repo for install_vulkan_sdk_macos.sh
+        uses: actions/checkout@v4
+        with:
+          repository: appsinacup/action_godot_builder
+          path: misc/scripts
 
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
@@ -61,15 +67,6 @@ jobs:
       - name: Setup Vulkan SDK
         run: |
           sh misc/scripts/install_vulkan_sdk_macos.sh
-
-      - name: Debug Vulkan SDK location
-        run: |
-          find $HOME -type d -name VulkanSDK || true
-          find / -type d -name VulkanSDK 2>/dev/null || true
-
-      - name: Set VULKAN_SDK env
-        run: |
-          echo "VULKAN_SDK=$HOME/VulkanSDK/$(ls $HOME/VulkanSDK | sort -V | tail -n1)" >> $GITHUB_ENV
 
       - name: Compilation (x86_64)
         uses: ./.github/actions/godot-build
