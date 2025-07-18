@@ -62,6 +62,11 @@ jobs:
         run: |
           sh misc/scripts/install_vulkan_sdk_macos.sh
 
+      - name: Debug Vulkan SDK location
+        run: |
+          find $HOME -type d -name VulkanSDK || true
+          find / -type d -name VulkanSDK 2>/dev/null || true
+
       - name: Set VULKAN_SDK env
         run: |
           echo "VULKAN_SDK=$HOME/VulkanSDK/$(ls $HOME/VulkanSDK | sort -V | tail -n1)" >> $GITHUB_ENV
@@ -69,14 +74,14 @@ jobs:
       - name: Compilation (x86_64)
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }}
+          sconsflags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }} vulkan_sdk_path=${{ env.VULKAN_SDK }}
           platform: macos
           target: ${{ matrix.target }}
 
       - name: Compilation (arm64)
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }}
+          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.production && 'production=yes' || '' }} vulkan_sdk_path=${{ env.VULKAN_SDK }}
           platform: macos
           target: ${{ matrix.target }}
 
