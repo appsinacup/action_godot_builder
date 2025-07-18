@@ -59,6 +59,26 @@ jobs:
           zip -r Godot_v${{ inputs.tag }}_export_templates.tpz templates
           cd ..
 
+      - name: Mac Create Editor Bundle
+        run: |
+          cp -r misc/dist/macos_tools.app ./bin/Godot.app
+          mkdir -p bin/Godot.app/Contents/MacOS
+          cp bin/godot.macos.editor.universal bin/Godot.app/Contents/MacOS/Godot
+          chmod +x bin/Godot.app/Contents/MacOS/Godot
+          codesign --force --timestamp --options=runtime --entitlements misc/dist/macos/editor.entitlements -s - bin/Godot.app
+
+      - name: Mac Create Template Bundle
+        run: |
+          cd bin
+          cp -r ../misc/dist/macos_template.app .
+          mkdir -p macos_template.app/Contents/MacOS
+          cp godot.macos.template_release.universal macos_template.app/Contents/MacOS/godot_macos_release.universal
+          cp godot.macos.template_debug.universal macos_template.app/Contents/MacOS/godot_macos_debug.universal
+          chmod +x macos_template.app/Contents/MacOS/godot_macos*
+          zip -q -9 -r macos.zip macos_template.app
+        
+          cp macos.zip "$template_dir/macos.zip"
+
       - name: Upload artifact (Horizon OS)
         if: matrix.target == 'editor'
         uses: actions/upload-artifact@v4

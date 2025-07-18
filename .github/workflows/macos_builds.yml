@@ -49,9 +49,6 @@ jobs:
           ref: ${{ inputs.tag }}
           submodules: recursive
 
-      - name: Select Xcode 16
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app
-
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
@@ -60,17 +57,6 @@ jobs:
 
       - name: Setup Python and SCons
         uses: ./.github/actions/godot-deps
-
-      - name: Download pre-built AccessKit
-        uses: dsaltares/fetch-gh-release-asset@1.1.2
-        with:
-          repo: AccessKit/accesskit-c
-          version: tags/0.16.0
-          file: accesskit-c-0.16.0.zip
-          target: accesskit-c-0.16.0/accesskit_c.zip
-
-      - name: Extract pre-built AccessKit
-        run: unzip -o accesskit-c-0.16.0/accesskit_c.zip
 
       - name: Setup Vulkan SDK
         run: |
@@ -102,28 +88,6 @@ jobs:
           rm ./bin/godot.macos.${{ matrix.target }}.x86_64 ./bin/godot.macos.${{ matrix.target }}.arm64
           strip bin/godot.*
           chmod +x bin/godot.*
-
-      - name: Create Editor Bundle
-        if: matrix.target == 'editor'
-        run: |
-          cp -r misc/dist/macos_tools.app ./bin/Godot.app
-          mkdir -p bin/Godot.app/Contents/MacOS
-          cp bin/godot.macos.editor.universal bin/Godot.app/Contents/MacOS/Godot
-          chmod +x bin/Godot.app/Contents/MacOS/Godot
-          codesign --force --timestamp --options=runtime --entitlements misc/dist/macos/editor.entitlements -s - bin/Godot.app
-
-      - name: Create Template Bundle
-        if: matrix.target == 'template_release' || matrix.target == 'template_debug'
-        run: |
-          cd bin
-          cp -r ../misc/dist/macos_template.app .
-          mkdir -p macos_template.app/Contents/MacOS
-          cp godot.macos.template_release.universal macos_template.app/Contents/MacOS/godot_macos_release.universal
-          cp godot.macos.template_debug.universal macos_template.app/Contents/MacOS/godot_macos_debug.universal
-          chmod +x macos_template.app/Contents/MacOS/godot_macos*
-          zip -q -9 -r macos.zip macos_template.app
-        
-          cp macos.zip "$template_dir/macos.zip"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
