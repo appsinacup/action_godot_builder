@@ -45,9 +45,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Editor (target=editor)
-            target: editor
-            sconsflags: arch=arm64
 # Templates
           - name: Template arm32 (target=template_release, arch=arm32)
             target: template_release

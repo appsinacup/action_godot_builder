@@ -8,7 +8,7 @@ Action that builds a custom version of the Godot Engine. You can set a custom go
 ![inputs](docs/inputs.png)
 
 If it's cached, the build takes 10 minutes for all targets. It builds almost all targets that godot normally builds for export:
-- **Android** (editor arm64, template arm64, arm32, x86, x32)
+- **Android** (template arm64, arm32, x86, x32)
 - **iOS** (template arm64)
 - **Linux** (editor x64, template x64, x32)
 - **macOS** (editor universal, template universal)
