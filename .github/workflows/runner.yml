@@ -78,42 +78,8 @@ jobs:
       - macos-build
       - windows-build
       - web-build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: List downloaded artifacts
-        run: ls -R artifacts
-
-      - name: Package per-platform editors and templates
-        run: |
-          mkdir -p release/templates/${{ inputs.tag }}
-          
-          cp artifacts/linux-*/godot.linuxbsd.editor.x86_64* release/Godot_v4.4-stable_linux.x86_64.zip
-          cp artifacts/windows-*/godot.windows.editor.x86_64* release/Godot_v4.4-stable_win64.exe.zip
-          cp artifacts/macos-*/godot.macos.editor.universal* release/Godot_v4.4-stable_macos.universal.zip
-          cp artifacts/web-*/godot.web.editor* release/Godot_v4.4-stable_web.zip
-          cp artifacts/android-*/godot.android.editor* release/Godot_v4.4-stable_android.zip
-          cp artifacts/ios-*/godot.ios.editor* release/Godot_v4.4-stable_ios.zip
-
-          cp artifacts/linux-*/godot.linuxbsd.template_release.x86_64* release/templates/4.4.stable/linux_x86_64_release.zip
-          cp artifacts/windows-*/godot.windows.template_release.x86_64* release/templates/${{ inputs.tag }}/windows_x86_64_release.zip
-
-          cd release
-          zip -r Godot_v${{ inputs.tag }}_export_templates.tpz templates
-          cd ..
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.ref_name }}
-          name: "Custom Godot Release ${{ github.ref_name }}"
-          files: |
-            release/Godot_v${{ inputs.tag }}_linux.x86_64.zip
-            release/Godot_v${{ inputs.tag }}_win64.exe.zip
-            release/Godot_v${{ inputs.tag }}_macos.universal.zip
-            release/Godot_v${{ inputs.tag }}_export_templates.tpz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    uses: ./.github/workflows/release.yml
+    with:
+      repo: ${{ inputs.repo }}
+      tag: ${{ inputs.tag }}
+      production: ${{ inputs.production }}

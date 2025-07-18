@@ -102,12 +102,14 @@ jobs:
         continue-on-error: true
 
       - name: Generate Godot templates
-        if: matrix.target == 'template_release'
+        if: matrix.target == 'template_release' || matrix.target == 'template_debug'
         run: |
           cd platform/android/java
           ./gradlew generateGodotTemplates
           cd ../../..
           ls -l bin/
+          cp -f bin/android*.apk "templates/"
+          cp -f bin/android_source.zip "templates/"
 
       - name: Generate Godot editor
         if: matrix.target == 'editor'
@@ -126,20 +128,7 @@ jobs:
           mv bin/android_editor_builds/*-picoos-* picoos
 
       - name: Upload artifact
-        uses: ./.github/actions/upload-artifact
+        uses: actions/upload-artifact@v4
         with:
           name: android-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}
-
-      - name: Upload artifact (Horizon OS)
-        if: matrix.target == 'editor'
-        uses: ./.github/actions/upload-artifact
-        with:
-          name: android-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}-horizonos
-          path: horizonos
-
-      - name: Upload artifact (PICO OS)
-        if: matrix.target == 'editor'
-        uses: ./.github/actions/upload-artifact
-        with:
-          name: android-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}-picoos
-          path: picoos
+          path: bin
