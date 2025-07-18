@@ -19,7 +19,7 @@ on:
 env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: 4.4
-  SCONSFLAGS: verbose=yes warnings=extra werror=yes module_text_server_fb_enabled=yes strict_checks=yes debug_symbols=no
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes debug_symbols=no
 
 jobs:
   build-macos:
@@ -61,6 +61,10 @@ jobs:
       - name: Setup Vulkan SDK
         run: |
           sh misc/scripts/install_vulkan_sdk_macos.sh
+
+      - name: Set VULKAN_SDK env
+        run: |
+          echo "VULKAN_SDK=$HOME/VulkanSDK/$(ls $HOME/VulkanSDK | sort -V | tail -n1)" >> $GITHUB_ENV
 
       - name: Compilation (x86_64)
         uses: ./.github/actions/godot-build
