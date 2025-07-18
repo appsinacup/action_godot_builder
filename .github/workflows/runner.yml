@@ -33,9 +33,9 @@ on:
         type: boolean
         default: false
 
-concurrency:
-  group: ${{ github.workflow }}|${{ github.ref_name }}
-  cancel-in-progress: true
+#concurrency:
+#  group: ${{ github.workflow }}|${{ github.ref_name }}
+#  cancel-in-progress: true
 
 jobs:
   android-build:
