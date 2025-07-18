@@ -133,20 +133,6 @@ jobs:
           cd release
           zip -r Godot_v${VERSION_CLEAN}_export_templates.tpz templates
 
-      - name: Upload artifact (Horizon OS)
-        if: matrix.target == 'editor'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.target }}-android-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}-horizonos
-          path: horizonos
-
-      - name: Upload artifact (PICO OS)
-        if: matrix.target == 'editor'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.target }}-android-${{ matrix.sconsflags }}-${{ inputs.production && 'production' || 'normal' }}-picoos
-          path: picoos
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -154,8 +140,34 @@ jobs:
           name: "Custom Godot Release ${{ github.ref_name }}"
           files: |
             release/Godot_v${{ inputs.tag }}_linux.x86_64.zip
+            release/Godot_v${{ inputs.tag }}_linux.x86_32.zip
+            release/Godot_v${{ inputs.tag }}_linux.arm64.zip
+            release/Godot_v${{ inputs.tag }}_linux.arm32.zip
             release/Godot_v${{ inputs.tag }}_win64.exe.zip
+            release/Godot_v${{ inputs.tag }}_win32.exe.zip
+            release/Godot_v${{ inputs.tag }}_windows_arm64.exe.zip
             release/Godot_v${{ inputs.tag }}_macos.universal.zip
+            release/Godot_v${{ inputs.tag }}_macos.app.zip
+            release/Godot_v${{ inputs.tag }}_web_editor.zip
+            release/Godot_v${{ inputs.tag }}_android_editor.aab
+            release/Godot_v${{ inputs.tag }}_android_editor.apk
+            release/Godot_v${{ inputs.tag }}_android_editor_horizonos.apk
+            release/Godot_v${{ inputs.tag }}_android_editor_picoos.apk
+            release/Godot_v${{ inputs.tag }}_ios_editor.zip
             release/Godot_v${{ inputs.tag }}_export_templates.tpz
+            release/templates/${{ inputs.tag }}/linux_x86_64_release.zip
+            release/templates/${{ inputs.tag }}/linux_x86_32_release.zip
+            release/templates/${{ inputs.tag }}/linux_arm64_release.zip
+            release/templates/${{ inputs.tag }}/linux_arm32_release.zip
+            release/templates/${{ inputs.tag }}/windows_x86_64_release.zip
+            release/templates/${{ inputs.tag }}/windows_x86_32_release.zip
+            release/templates/${{ inputs.tag }}/windows_arm64_release.zip
+            release/templates/${{ inputs.tag }}/macos_universal_release.zip
+            release/templates/${{ inputs.tag }}/macos_bundle.zip
+            release/templates/${{ inputs.tag }}/web_release.zip
+            # Add Android/iOS template zips if present
+            release/godot-${{ inputs.tag }}.tar.xz
+            release/godot-${{ inputs.tag }}.tar.xz.sha256
+            release/godot-lib.${{ inputs.tag }}.stable.template_release.aar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
