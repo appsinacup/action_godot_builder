@@ -131,12 +131,13 @@ jobs:
           mv bin/godot.windows.editor.arm64.exe bin/Godot_v${VERSION}_windows_arm64.exe
 
           # Archive them
-          zip -q -9 -r release/Godot_v${VERSION}_linux.x86_64.zip bin/Godot_v${VERSION}_linux.x86_64
-          zip -q -9 -r release/Godot_v${VERSION}_win64.exe.zip bin/Godot_v${VERSION}_win64.exe
-          zip -q -9 -r release/Godot_v${VERSION}_win32.exe.zip bin/Godot_v${VERSION}_win32.exe
-          zip -q -9 -r release/Godot_v${VERSION}_windows_arm64.exe.zip bin/Godot_v${VERSION}_windows_arm64.exe
-          zip -q -9 -r release/Godot_v${VERSION}_macos.universal.zip bin/Godot.app
-
+          cd bin
+          zip -q -9 -r ../release/Godot_v${VERSION}_linux.x86_64.zip Godot_v${VERSION}_linux.x86_64
+          zip -q -9 -r ../release/Godot_v${VERSION}_win64.exe.zip Godot_v${VERSION}_win64.exe
+          zip -q -9 -r ../release/Godot_v${VERSION}_win32.exe.zip Godot_v${VERSION}_win32.exe
+          zip -q -9 -r ../release/Godot_v${VERSION}_windows_arm64.exe.zip Godot_v${VERSION}_windows_arm64.exe
+          zip -q -9 -r ../release/Godot_v${VERSION}_macos.universal.zip Godot.app
+          cd ..
           # Templates
           cp bin/godot.linuxbsd.template_debug.x86_64.llvm "release/templates/linux_debug.x86_64"
           cp bin/godot.linuxbsd.template_release.x86_64.llvm "release/templates/linux_release.x86_64"
@@ -176,6 +177,7 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: "Custom Godot Release ${{ github.ref_name }}"
+          draft: true
           files: |
             release/Godot_v${{ inputs.tag }}_linux.x86_64.zip
             release/Godot_v${{ inputs.tag }}_win64.exe.zip
