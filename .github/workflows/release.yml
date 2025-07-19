@@ -12,9 +12,10 @@ on:
         default: 'godotengine/godot'
         type: string
       tag:
-        description: 'Branch to use for the build'
-        default: 'master'
+        description: 'tag to use for the build'
+        required: true
         type: string
+        default: '4.4.1-stable'
       encryption_key:
         description: Encryption key for the build
         required: false
@@ -123,16 +124,23 @@ jobs:
           VERSION_CLEAN=${VERSION//-/.}
           mkdir -p release/templates/$VERSION_CLEAN
           
-          # Editors
-          cp bin/godot.linuxbsd.editor.x86_64* release/Godot_v${VERSION_CLEAN}_linux.x86_64.zip
-          cp bin/godot.linuxbsd.editor.x86* release/Godot_v${VERSION_CLEAN}_linux.x86_32.zip
-          cp bin/godot.windows.editor.x86_64* release/Godot_v${VERSION_CLEAN}_win64.exe.zip
-          cp bin/godot.windows.editor.x86* release/Godot_v${VERSION_CLEAN}_win32.exe.zip
-          cp bin/godot.windows.editor.arm64* release/Godot_v${VERSION_CLEAN}_windows_arm64.exe.zip
-          cp bin/godot.macos.editor.universal* release/Godot_v${VERSION_CLEAN}_macos.universal.zip
-          cp bin/Godot.app.zip release/Godot_v${VERSION_CLEAN}_macos.app.zip
+          # Editors. Rename them
+          mv bin/godot.linuxbsd.editor.x86_64 bin/Godot_v${VERSION}_linux.x86_64
+          mv bin/godot.linuxbsd.editor.x86_32 bin/Godot_v${VERSION}_linux.x86_32
+          mv bin/godot.windows.editor.x86_64.exe bin/Godot_v${VERSION}_win64.exe
+          mv bin/godot.windows.editor.x86_32.exe bin/Godot_v${VERSION}_win32.exe
+          mv bin/godot.windows.editor.arm64.exe bin/Godot_v${VERSION}_windows_arm64.exe
+
+          # Archive them
+          zip -q -9 -r release/Godot_v${VERSION_CLEAN}_linux.x86_64.zip bin/Godot_v${VERSION_CLEAN}_linux.x86_64
+          zip -q -9 -r release/Godot_v${VERSION_CLEAN}_linux.x86_32.zip bin/Godot_v${VERSION_CLEAN}_linux.x86_32
+          zip -q -9 -r release/Godot_v${VERSION_CLEAN}_win64.exe.zip bin/Godot_v${VERSION_CLEAN}_win64.exe
+          zip -q -9 -r release/Godot_v${VERSION_CLEAN}_win32.exe.zip bin/Godot_v${VERSION_CLEAN}_win32.exe
+          zip -q -9 -r release/Godot_v${VERSION_CLEAN}_windows_arm64.exe.zip bin/Godot_v${VERSION_CLEAN}_windows_arm64.exe
+          zip -q -9 -r release/Godot_v${VERSION_CLEAN}_macos.universal.zip bin/Godot.app
 
           # Templates
+          cp bin/godot.linuxbsd.template_debug.x86_32 "release/templates/godot.linuxbsd.template_debug.x86_32"
           cp bin/godot.linuxbsd.template_* "release/templates/"
           cp bin/windows*.exe "release/templates/"
           cp macos.zip "release/templates/macos.zip"
@@ -163,19 +171,10 @@ jobs:
           files: |
             release/Godot_v${{ inputs.tag }}_linux.x86_64.zip
             release/Godot_v${{ inputs.tag }}_linux.x86_32.zip
-            #release/Godot_v${{ inputs.tag }}_linux.arm64.zip
-            #release/Godot_v${{ inputs.tag }}_linux.arm32.zip
             release/Godot_v${{ inputs.tag }}_win64.exe.zip
             release/Godot_v${{ inputs.tag }}_win32.exe.zip
             release/Godot_v${{ inputs.tag }}_windows_arm64.exe.zip
             release/Godot_v${{ inputs.tag }}_macos.universal.zip
-            release/Godot_v${{ inputs.tag }}_macos.app.zip
-            release/Godot_v${{ inputs.tag }}_web_editor.zip
-            release/Godot_v${{ inputs.tag }}_android_editor.aab
-            release/Godot_v${{ inputs.tag }}_android_editor.apk
-            release/Godot_v${{ inputs.tag }}_android_editor_horizonos.apk
-            release/Godot_v${{ inputs.tag }}_android_editor_picoos.apk
-            release/Godot_v${{ inputs.tag }}_ios_editor.zip
             release/Godot_v${{ inputs.tag }}_export_templates.tpz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
