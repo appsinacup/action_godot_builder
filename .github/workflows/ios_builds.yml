@@ -2,10 +2,11 @@ name: 🍏 iOS Builds
 on:
   workflow_call:
     inputs:
-      production:
-        description: 'Enable Production build'
-        default: false
-        type: boolean
+      lto:
+        description: 'LTO mode. Options: "none", "thin", "full"'
+        required: false
+        type: string
+        default: "thin"
       repo:
         description: 'Repository to use for the build'
         default: 'godotengine/godot'
@@ -34,7 +35,7 @@ on:
 env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: 4.4
-  SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no module_text_server_fb_enabled=yes strict_checks=yes ${{ inputs.module_flags }} build_profile=${{ inputs.build_profile }}
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no module_text_server_fb_enabled=yes strict_checks=yes ${{ inputs.module_flags }} build_profile=${{ inputs.build_profile }} use_static_cpp=yes
   SCRIPT_AES256_ENCRYPTION_KEY: ${{ inputs.encryption_key }}
 
 jobs:
@@ -53,7 +54,7 @@ jobs:
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
-          cache-name: ios-${{ inputs.production && 'production' || 'normal' }}
+          cache-name: ios-${{ inputs.lto }}
         continue-on-error: true
 
       - name: Setup Python and SCons
@@ -62,7 +63,7 @@ jobs:
       - name: Compilation
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.production && 'production=yes' || '' }}
+          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.lto }}
           platform: ios
           target: template_debug
           scons-cache-limit: 1
@@ -70,7 +71,7 @@ jobs:
       - name: Compilation
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.production && 'production=yes' || '' }} generate_bundle=yes
+          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.lto }} generate_bundle=yes
           platform: ios
           target: template_release
           scons-cache-limit: 1
@@ -78,11 +79,11 @@ jobs:
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
-          cache-name: ios-${{ inputs.production && 'production' || 'normal' }}
+          cache-name: ios-${{ inputs.lto }}
         continue-on-error: true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ios-${{ inputs.production && 'production' || 'normal' }}
+          name: ios-${{ inputs.lto }}
           path: bin

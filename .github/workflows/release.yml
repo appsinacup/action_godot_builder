@@ -2,10 +2,11 @@ name: 🚀 Create Release
 on:
   workflow_call:
     inputs:
-      production:
-        description: 'Enable Production build'
-        default: false
-        type: boolean
+      lto:
+        description: 'LTO mode. Options: "none", "thin", "full"'
+        required: false
+        type: string
+        default: "thin"
       repo:
         description: 'Repository to use for the build'
         default: 'godotengine/godot'
