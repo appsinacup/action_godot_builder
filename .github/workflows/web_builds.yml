@@ -64,21 +64,21 @@ jobs:
             target: template_debug
             sconsflags: threads=no
           
-          - name: Template w/ threads (target=template_release, threads=yes dlink=yes)
+          - name: Template w/ threads (target=template_release, threads=yes dlink_enabled=yes)
             target: template_release
-            sconsflags: threads=yes dlink=yes
+            sconsflags: threads=yes dlink_enabled=yes
 
-          - name: Template w/o threads (target=template_release, threads=no dlink=yes)
+          - name: Template w/o threads (target=template_release, threads=no dlink_enabled=yes)
             target: template_release
-            sconsflags: threads=no dlink=yes
+            sconsflags: threads=no dlink_enabled=yes
 
-          - name: Template w/ threads (target=template_debug, threads=yes dlink=yes)
+          - name: Template w/ threads (target=template_debug, threads=yes dlink_enabled=yes)
             target: template_debug
-            sconsflags: threads=yes dlink=yes
+            sconsflags: threads=yes dlink_enabled=yes
 
-          - name: Template w/o threads (target=template_debug, threads=no dlink=yes)
+          - name: Template w/o threads (target=template_debug, threads=no dlink_enabled=yes)
             target: template_debug
-            sconsflags: threads=no dlink=yes
+            sconsflags: threads=no dlink_enabled=yes
     steps:
       - name: Checkout
         uses: actions/checkout@v4
