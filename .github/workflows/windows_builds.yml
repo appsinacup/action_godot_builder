@@ -6,7 +6,7 @@ on:
         description: 'LTO mode. Options: "none", "full"'
         required: false
         type: string
-        default: "none"
+        default: "lto=none"
       repo:
         description: 'Repository to use for the build'
         default: 'godotengine/godot'
