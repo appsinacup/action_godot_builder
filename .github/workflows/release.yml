@@ -126,27 +126,33 @@ jobs:
           
           # Editors. Rename them
           mv bin/godot.linuxbsd.editor.x86_64 bin/Godot_v${VERSION}_linux.x86_64
-          mv bin/godot.linuxbsd.editor.x86_32 bin/Godot_v${VERSION}_linux.x86_32
           mv bin/godot.windows.editor.x86_64.exe bin/Godot_v${VERSION}_win64.exe
           mv bin/godot.windows.editor.x86_32.exe bin/Godot_v${VERSION}_win32.exe
           mv bin/godot.windows.editor.arm64.exe bin/Godot_v${VERSION}_windows_arm64.exe
 
           # Archive them
-          zip -q -9 -r release/Godot_v${VERSION_CLEAN}_linux.x86_64.zip bin/Godot_v${VERSION_CLEAN}_linux.x86_64
-          zip -q -9 -r release/Godot_v${VERSION_CLEAN}_linux.x86_32.zip bin/Godot_v${VERSION_CLEAN}_linux.x86_32
-          zip -q -9 -r release/Godot_v${VERSION_CLEAN}_win64.exe.zip bin/Godot_v${VERSION_CLEAN}_win64.exe
-          zip -q -9 -r release/Godot_v${VERSION_CLEAN}_win32.exe.zip bin/Godot_v${VERSION_CLEAN}_win32.exe
-          zip -q -9 -r release/Godot_v${VERSION_CLEAN}_windows_arm64.exe.zip bin/Godot_v${VERSION_CLEAN}_windows_arm64.exe
-          zip -q -9 -r release/Godot_v${VERSION_CLEAN}_macos.universal.zip bin/Godot.app
+          zip -q -9 -r release/Godot_v${VERSION}_linux.x86_64.zip bin/Godot_v${VERSION}_linux.x86_64
+          zip -q -9 -r release/Godot_v${VERSION}_win64.exe.zip bin/Godot_v${VERSION}_win64.exe
+          zip -q -9 -r release/Godot_v${VERSION}_win32.exe.zip bin/Godot_v${VERSION}_win32.exe
+          zip -q -9 -r release/Godot_v${VERSION}_windows_arm64.exe.zip bin/Godot_v${VERSION}_windows_arm64.exe
+          zip -q -9 -r release/Godot_v${VERSION}_macos.universal.zip bin/Godot.app
 
           # Templates
-          cp bin/godot.linuxbsd.template_debug.x86_32 "release/templates/godot.linuxbsd.template_debug.x86_32"
-          cp bin/godot.linuxbsd.template_* "release/templates/"
-          cp bin/windows*.exe "release/templates/"
-          cp macos.zip "release/templates/macos.zip"
-          cp -f bin/godot_ios.zip "release/templates/ios.zip"
-          cp -f bin/android*.apk "release/templates/"
+          cp bin/godot.linuxbsd.template_debug.x86_64 "release/templates/linux_debug.x86_64"
+          cp bin/godot.linuxbsd.template_release.x86_64 "release/templates/linux_release.x86_64"
+
+          cp bin/godot.windows.template_debug.x86_64.exe "release/templates/windows_debug_x86_64.exe"
+          cp bin/godot.windows.template_release.x86_64.exe "release/templates/windows_release_x86_64.exe"
+          cp bin/godot.windows.template_debug.x86_32.exe "release/templates/windows_debug_x86_32.exe"
+          cp bin/godot.windows.template_release.x86_32.exe "release/templates/windows_release_x86_32.exe"
+          cp bin/godot.windows.template_debug.arm64.exe "release/templates/windows_debug_arm64.exe"
+          cp bin/godot.windows.template_release.arm64.exe "release/templates/windows_release_arm64.exe"
+
+          cp bin/godot_macos.zip "release/templates/macos.zip"
+          cp bin/godot_ios.zip "release/templates/ios.zip"
+
           cp -f bin/android_source.zip "release/templates/"
+
           cp bin/godot.web.template_release.wasm32.zip "release/templates/web_release.zip"
           cp bin/godot.web.template_debug.wasm32.zip "release/templates/web_debug.zip"
           cp bin/godot.web.template_release.wasm32.nothreads.zip "release/templates/web_nothreads_release.zip"
@@ -155,10 +161,12 @@ jobs:
           cp bin/godot.web.template_debug.wasm32.dlink.zip "release/templates/web_dlink_debug.zip"
           cp bin/godot.web.template_release.wasm32.nothreads.dlink.zip "release/templates/web_nothreads_dlink_release.zip"
           cp bin/godot.web.template_debug.wasm32.nothreads.dlink.zip "release/templates/web_nothreads_dlink_debug.zip"
+          
+          echo "${VERSION_CLEAN}" > release/templates/version.txt
 
           # Create export templates .tpz
           cd release
-          zip -r Godot_v${VERSION_CLEAN}_export_templates.tpz templates
+          zip -r Godot_v${VERSION}_export_templates.tpz templates
       
       - name: List release directory
         run: ls -R release
@@ -170,7 +178,6 @@ jobs:
           name: "Custom Godot Release ${{ github.ref_name }}"
           files: |
             release/Godot_v${{ inputs.tag }}_linux.x86_64.zip
-            release/Godot_v${{ inputs.tag }}_linux.x86_32.zip
             release/Godot_v${{ inputs.tag }}_win64.exe.zip
             release/Godot_v${{ inputs.tag }}_win32.exe.zip
             release/Godot_v${{ inputs.tag }}_windows_arm64.exe.zip

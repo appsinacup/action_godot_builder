@@ -55,26 +55,14 @@ jobs:
           - name: Editor (target=editor arch=x86_64)
             target: editor
             sconsflags: arch=x86_64
-
-          - name: Editor (target=editor arch=x86)
-            target: editor
-            sconsflags: arch=x86
           
           - name: Template (target=template_release, arch=x86_64)
             target: template_release
             sconsflags: arch=x86_64
           
-          - name: Template (target=template_release, arch=x86)
-            target: template_release
-            sconsflags: arch=x86
-          
           - name: Template (target=template_debug, arch=x86_64)
             target: template_debug
             sconsflags: arch=x86_64
-          
-          - name: Template (target=template_debug, arch=x86)
-            target: template_debug
-            sconsflags: arch=x86
 
     steps:
       - name: Checkout
