@@ -31,12 +31,17 @@ on:
         required: false
         type: string
         default: ''
+      template_module_flags:
+        description: 'Extra module flags for template build, e.g. module_webm_enabled=no'
+        required: false
+        type: string
+        default: ''
 
 # Global Settings
 env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: 4.4
-  SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes debug_symbols=no ${{ inputs.module_flags }} build_profile=${{ inputs.build_profile }} use_static_cpp=yes
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes debug_symbols=no build_profile=${{ inputs.build_profile }} use_static_cpp=yes
   SCRIPT_AES256_ENCRYPTION_KEY: ${{ inputs.encryption_key }}
 
 jobs:
@@ -90,16 +95,34 @@ jobs:
           sh misc/scripts/install_vulkan_sdk_macos.sh
 
       - name: Compilation (x86_64)
+        if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.sconsflags }} ${{ inputs.lto }}
+          sconsflags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.module_flags }}
           platform: macos
           target: ${{ matrix.target }}
 
       - name: Compilation (arm64)
+        if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.lto }}
+          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.module_flags }}
+          platform: macos
+          target: ${{ matrix.target }}
+
+      - name: Compilation (x86_64)
+        if: matrix.target != 'editor'
+        uses: ./.github/actions/godot-build
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          platform: macos
+          target: ${{ matrix.target }}
+
+      - name: Compilation (arm64)
+        if: matrix.target != 'editor'
+        uses: ./.github/actions/godot-build
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
           platform: macos
           target: ${{ matrix.target }}
 

@@ -31,6 +31,11 @@ on:
         required: false
         type: string
         default: ''
+      template_module_flags:
+        description: 'Extra module flags for template build, e.g. module_webm_enabled=no'
+        required: false
+        type: string
+        default: ''
 
 # Global Settings
 # SCONS_CACHE for windows must be set in the build environment
@@ -171,9 +176,19 @@ jobs:
         run: Expand-Archive -Force nir/nir.zip ${{ github.workspace }}/
 
       - name: Compilation
+        if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }}
+          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.module_flags }}
+          platform: windows
+          target: ${{ matrix.target }}
+          scons-cache-limit: 2
+
+      - name: Compilation
+        if: matrix.target != 'editor'
+        uses: ./.github/actions/godot-build
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
           platform: windows
           target: ${{ matrix.target }}
           scons-cache-limit: 2

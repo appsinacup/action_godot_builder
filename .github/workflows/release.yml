@@ -50,6 +50,11 @@ on:
         required: false
         type: string
         default: ''
+      template_module_flags:
+        description: 'Extra module flags for template build, e.g. module_webm_enabled=no'
+        required: false
+        type: string
+        default: ''
 
 # Global Settings
 env:
