@@ -1,6 +1,25 @@
 name: 🚀 Create Release
 on:
   workflow_call:
+    secrets:
+      BUILD_CERTIFICATE_BASE64:
+        description: Base64 encoded certificate for signing mac binary.
+        required: false
+      P12_PASSWORD:
+        description: Password for the P12 certificate.
+        required: false
+      KEYCHAIN_PASSWORD:
+        description: Password for the keychain.
+        required: false
+      APPLE_ID:
+        description: Apple ID for notarization.
+        required: false
+      APP_SPECIFIC_PASSWORD:
+        description: App-specific password for notarization.
+        required: false
+      APPLE_TEAM_ID:
+        description: Apple Team ID for notarization.
+        required: false
     inputs:
       lto:
         description: 'LTO mode. Options: "none", "thin", "full"'
