@@ -26,12 +26,12 @@ on:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
         required: false
         type: string
-        default: ''
+        default: 'disable_advanced_gui=yes'
       template_module_flags:
         description: 'Extra module flags for template build, e.g. module_webm_enabled=no'
         required: false
         type: string
-        default: ''
+        default: 'disable_3d=yes disable_advanced_gui=yes'
       lto:
         description: 'LTO mode. Options: "none", "thin", "full"'
         required: false
