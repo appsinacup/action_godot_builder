@@ -176,7 +176,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: "Custom Godot Release ${{ github.ref_name }}"
+          name: "Custom Godot ${{ inputs.tag }}"
           draft: true
           files: |
             release/Godot_v${{ inputs.tag }}_linux.x86_64.zip
