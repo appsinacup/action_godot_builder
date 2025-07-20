@@ -75,7 +75,53 @@ jobs:
         run: |
           sh misc/scripts/install_vulkan_sdk_macos.sh
 
+      # https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development
+      - name: Install the Apple certificate
+        if: ${{ env.BUILD_CERTIFICATE_BASE64 != '' }}
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          # create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # import certificate and provisioning profile from secrets
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          SIGNING_IDENTITY=$(security find-identity -v -p codesigning | awk -F'"' 'NR==1 {print $2}')
+          echo "APPLE_SIGNING_IDENTITY=$SIGNING_IDENTITY" >> $GITHUB_ENV
+  
       - name: Mac Create Editor Bundle
+        if: ${{ env.APPLE_SIGNING_IDENTITY != '' }}
+        run: |
+          cp -r misc/dist/macos_tools.app ./bin/Godot.app
+          mkdir -p bin/Godot.app/Contents/MacOS
+          cp bin/godot.macos.editor.universal bin/Godot.app/Contents/MacOS/Godot
+          chmod +x bin/Godot.app/Contents/MacOS/Godot
+          codesign --force --timestamp --options=runtime --entitlements misc/dist/macos/editor.entitlements --sign "${{ env.APPLE_SIGNING_IDENTITY }}" bin/Godot.app
+
+          # Package the application into a zip file
+          zip -q -9 -r "Godot.universal.zip" bin/Godot.app
+
+          /Applications/Xcode.app/Contents/Developer/usr/bin/notarytool store-credentials "AppleID" --apple-id "${{ secrets.APPLE_ID }}" --password "${{ secrets.APP_SPECIFIC_PASSWORD }}" --team-id "${{ secrets.APPLE_TEAM_ID }}"
+
+          /Applications/Xcode.app/Contents/Developer/usr/bin/notarytool submit Godot.universal.zip --wait --keychain-profile "AppleID"
+
+          xcrun stapler staple bin/Godot.app
+
+      - name: Mac Create Editor Bundle (w/o Signing)
+        if: ${{ env.APPLE_SIGNING_IDENTITY == '' }}
         run: |
           cp -r misc/dist/macos_tools.app ./bin/Godot.app
           mkdir -p bin/Godot.app/Contents/MacOS
