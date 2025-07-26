@@ -114,7 +114,7 @@ jobs:
       - name: Compilation
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }}
+          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
           platform: web
           target: ${{ matrix.target }}
           scons-cache-limit: 0.5

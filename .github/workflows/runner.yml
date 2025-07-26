@@ -37,6 +37,11 @@ on:
         required: false
         type: string
         default: "lto=thin"
+      optimize:
+        description: 'Optimization level. Options: "none", "auto", "size", "speed"'
+        required: false
+        type: string
+        default: "auto"
 
 #concurrency:
 #  group: ${{ github.workflow }}|${{ github.ref_name }}
