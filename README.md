@@ -30,3 +30,5 @@ It then creates a draft release (if satisfied with it, you can make a release an
 Similar to how godot does, so you can then use it to build or develop your game, but with bugfixes or new features. The release name will be different, but the files name will be similar to the release it is based on.
 
 ![release_example](docs/release_example.png)
+
+From here, you download the editor if you need it, if not you just download the export templates and use them locally (by replacing the ones you already had).
