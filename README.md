@@ -9,6 +9,10 @@ Eg. for Godot 4.1 web template_releas builds (unzipped):
 - [normal build](https://github.com/appsinacup/action_godot_builder/releases/tag/v1.2.3): 42 MB
 - [3D disabled build](https://github.com/appsinacup/action_godot_builder/releases/tag/3d-disable): 31.9 MB
 
+## How to get started
+
+Fork this repo, enable actions, and the go to `Actions` -> `GHA` -> `Run Workflow`:
+
 ![inputs](docs/inputs.png)
 
 If it's cached, the build takes 10 minutes for all targets. Full build can take up to 30m per target (so like 1-2 hours). It builds almost all targets that godot normally builds for export:
