@@ -161,7 +161,7 @@ jobs:
           cp bin/godot.macos.template_release.universal bin/macos_template.app/Contents/MacOS/godot_macos_release.universal
           cp bin/godot.macos.template_debug.universal bin/macos_template.app/Contents/MacOS/godot_macos_debug.universal
           chmod +x bin/macos_template.app/Contents/MacOS/godot_macos*
-          zip -q -9 -r bin/macos.zip bin/macos_template.app
+          cd bin && zip -q -9 -r macos.zip macos_template.app && cd ..
       
       - name: Set up Java 17
         uses: actions/setup-java@v4
