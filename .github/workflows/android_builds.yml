@@ -69,10 +69,21 @@ jobs:
             target: template_release
             sconsflags: arch=x86_64
 
+          - name: Template arm32 (target=template_debug, arch=arm32)
+            target: template_debug
+            sconsflags: arch=arm32
+
           - name: Template arm64 (target=template_debug, arch=arm64)
             target: template_debug
             sconsflags: arch=arm64
           
+          - name: Template x86 (target=template_debug, arch=x86)
+            target: template_debug
+            sconsflags: arch=x86
+          
+          - name: Template x86_64 (target=template_debug, arch=x86_64)
+            target: template_debug
+            sconsflags: arch=x86_64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
