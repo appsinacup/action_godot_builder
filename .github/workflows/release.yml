@@ -238,8 +238,8 @@ jobs:
           cp bin/godot.web.template_debug.wasm32.nothreads.zip "release/templates/web_nothreads_debug.zip"
           cp bin/godot.web.template_release.wasm32.dlink.zip "release/templates/web_dlink_release.zip"
           cp bin/godot.web.template_debug.wasm32.dlink.zip "release/templates/web_dlink_debug.zip"
-          cp bin/godot.web.template_release.wasm32.nothreads.dlink.zip "release/templates/web_nothreads_dlink_release.zip"
-          cp bin/godot.web.template_debug.wasm32.nothreads.dlink.zip "release/templates/web_nothreads_dlink_debug.zip"
+          cp bin/godot.web.template_release.wasm32.nothreads.dlink.zip "release/templates/web_dlink_nothreads_release.zip"
+          cp bin/godot.web.template_debug.wasm32.nothreads.dlink.zip "release/templates/web_dlink_nothreads_debug.zip"
 
           echo "${VERSION_CLEAN}" > release/templates/version.txt
 
