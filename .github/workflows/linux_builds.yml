@@ -65,10 +65,6 @@ jobs:
             target: editor
             sconsflags: arch=x86_32
 
-          - name: Editor (target=editor arch=arm64)
-            target: editor
-            sconsflags: arch=arm64
-
           - name: Template (target=template_release, arch=x86_64)
             target: template_release
             sconsflags: arch=x86_64
@@ -84,14 +80,6 @@ jobs:
           - name: Template (target=template_debug, arch=x86_32)
             target: template_debug
             sconsflags: arch=x86_32
-
-          - name: Template (target=template_release, arch=arm64)
-            target: template_release
-            sconsflags: arch=arm64
-          
-          - name: Template (target=template_debug, arch=arm64)
-            target: template_debug
-            sconsflags: arch=arm64
     steps:
       - name: Checkout
         uses: actions/checkout@v4

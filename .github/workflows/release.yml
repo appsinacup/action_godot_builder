@@ -197,7 +197,6 @@ jobs:
           # Editors. Rename them
           mv bin/godot.linuxbsd.editor.x86_64.llvm bin/Godot_v${VERSION}_linux.x86_64
           mv bin/godot.linuxbsd.editor.x86_32.llvm bin/Godot_v${VERSION}_linux.x86_32
-          mv bin/godot.linuxbsd.editor.arm64.llvm bin/Godot_v${VERSION}_linux.arm64
           mv bin/godot.windows.editor.x86_64.exe bin/Godot_v${VERSION}_win64.exe
           mv bin/godot.windows.editor.x86_32.exe bin/Godot_v${VERSION}_win32.exe
           mv bin/godot.windows.editor.arm64.exe bin/Godot_v${VERSION}_windows_arm64.exe
@@ -206,7 +205,6 @@ jobs:
           cd bin
           zip -q -9 -r ../release/Godot_v${VERSION}_linux.x86_64.zip Godot_v${VERSION}_linux.x86_64
           zip -q -9 -r ../release/Godot_v${VERSION}_linux.x86_32.zip Godot_v${VERSION}_linux.x86_32
-          zip -q -9 -r ../release/Godot_v${VERSION}_linux.arm64.zip Godot_v${VERSION}_linux.arm64
           zip -q -9 -r ../release/Godot_v${VERSION}_win64.exe.zip Godot_v${VERSION}_win64.exe
           zip -q -9 -r ../release/Godot_v${VERSION}_win32.exe.zip Godot_v${VERSION}_win32.exe
           zip -q -9 -r ../release/Godot_v${VERSION}_windows_arm64.exe.zip Godot_v${VERSION}_windows_arm64.exe
@@ -217,8 +215,6 @@ jobs:
           cp bin/godot.linuxbsd.template_release.x86_64.llvm "release/templates/linux_release.x86_64"
           cp bin/godot.linuxbsd.template_debug.x86_32.llvm "release/templates/linux_debug.x86_32"
           cp bin/godot.linuxbsd.template_release.x86_32.llvm "release/templates/linux_release.x86_32"
-          cp bin/godot.linuxbsd.template_debug.arm64.llvm "release/templates/linux_debug.arm64"
-          cp bin/godot.linuxbsd.template_release.arm64.llvm "release/templates/linux_release.arm64"
 
           cp bin/godot.windows.template_debug.x86_64.exe "release/templates/windows_debug_x86_64.exe"
           cp bin/godot.windows.template_release.x86_64.exe "release/templates/windows_release_x86_64.exe"
@@ -259,7 +255,6 @@ jobs:
           files: |
             release/Godot_v${{ inputs.tag }}_linux.x86_64.zip
             release/Godot_v${{ inputs.tag }}_linux.x86_32.zip
-            release/Godot_v${{ inputs.tag }}_linux.arm64.zip
             release/Godot_v${{ inputs.tag }}_win64.exe.zip
             release/Godot_v${{ inputs.tag }}_win32.exe.zip
             release/Godot_v${{ inputs.tag }}_windows_arm64.exe.zip
