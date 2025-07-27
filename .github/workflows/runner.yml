@@ -78,7 +78,7 @@ jobs:
     with:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
-      lto: ${{ inputs.lto }}
+      lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
       encryption_key: ${{ inputs.encryption_key }}
       build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
