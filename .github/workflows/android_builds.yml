@@ -41,6 +41,7 @@ env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: 4.4
   SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no module_text_server_fb_enabled=yes strict_checks=yes swappy=yes ${{ inputs.module_flags }} build_profile=${{ inputs.build_profile }} use_static_cpp=yes
+  HAS_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY != '' }}
 
 jobs:
   build-android:
@@ -91,7 +92,7 @@ jobs:
           submodules: recursive
 
       - name: Export Encryption Key
-        if: ${{ secrets.ENCRYPTION_KEY != '' }}
+        if: ${{ env.HAS_ENCRYPTION_KEY == 'true' }}
         run: echo "SCRIPT_AES256_ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}" >> $GITHUB_ENV
 
       - name: Set up Java 17

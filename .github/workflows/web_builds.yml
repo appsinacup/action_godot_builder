@@ -47,6 +47,7 @@ env:
   GODOT_BASE_BRANCH: 4.4
   SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no optimize=size use_closure_compiler=yes strict_checks=yes ${{ inputs.module_flags }} build_profile=${{ inputs.build_profile }} use_static_cpp=yes
   EM_VERSION: 3.1.64
+  HAS_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY != '' }}
 
 jobs:
   web-template:
@@ -96,7 +97,7 @@ jobs:
           submodules: recursive
 
       - name: Export Encryption Key
-        if: ${{ secrets.ENCRYPTION_KEY != '' }}
+        if: ${{ env.HAS_ENCRYPTION_KEY == 'true' }}
         run: echo "SCRIPT_AES256_ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}" >> $GITHUB_ENV
 
       - name: Set up Emscripten latest

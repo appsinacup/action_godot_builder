@@ -45,6 +45,7 @@ env:
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   TSAN_OPTIONS: suppressions=misc/error_suppressions/tsan.txt
   UBSAN_OPTIONS: suppressions=misc/error_suppressions/ubsan.txt
+  HAS_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY != '' }}
 
 jobs:
   build-linux:
@@ -87,7 +88,7 @@ jobs:
           submodules: recursive
 
       - name: Export Encryption Key
-        if: ${{ secrets.ENCRYPTION_KEY != '' }}
+        if: ${{ env.HAS_ENCRYPTION_KEY == 'true' }}
         run: echo "SCRIPT_AES256_ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}" >> $GITHUB_ENV
 
       # Need newer mesa for lavapipe to work properly.
