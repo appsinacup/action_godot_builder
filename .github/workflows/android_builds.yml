@@ -20,11 +20,6 @@ on:
         required: true
         type: string
         default: '4.4.1-stable'
-      encryption_key:
-        description: Encryption key for the build
-        required: false
-        type: string
-        default: '7f5ddb606888db9a20dbf00b76f9b426f81e48d299c7093d5119b39967bae8f1'
       build_profile:
         description: 'Build profile file path.'
         required: false
