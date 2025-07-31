@@ -191,6 +191,7 @@ jobs:
 
       - name: Package per-platform editors and templates
         run: |
+          mkdir -p release/templates
           set -e
           VERSION=${{ inputs.tag }}
           VERSION_CLEAN=${VERSION//-/.}
