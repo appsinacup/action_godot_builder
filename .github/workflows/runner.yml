@@ -7,6 +7,11 @@ on:
         required: false
         type: string
         default: 'appsinacup/gonuts'
+      base-branch:
+        description: 'Base branch to use for the builds'
+        required: false
+        type: string
+        default: '4.4'
       tag:
         description: 'tag to use for the build'
         required: false

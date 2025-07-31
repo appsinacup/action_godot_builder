@@ -6,6 +6,11 @@ on:
         description: Encryption key for the build
         required: false
     inputs:
+      base-branch:
+        description: 'Base branch to use for the builds'
+        required: false
+        type: string
+        default: '4.4'
       lto:
         description: 'LTO mode. Options: "none", "thin", "full"'
         required: false
@@ -44,7 +49,7 @@ on:
 # Global Settings
 env:
   # Used for the cache key. Add version suffix to force clean build.
-  GODOT_BASE_BRANCH: 4.4
+  GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
   SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no optimize=size use_closure_compiler=yes strict_checks=yes ${{ inputs.module_flags }} build_profile=${{ inputs.build_profile }} use_static_cpp=yes
   EM_VERSION: 3.1.64
   HAS_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY != '' }}
