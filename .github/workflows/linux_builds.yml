@@ -46,7 +46,6 @@ env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: 4.4
   SCONSFLAGS: verbose=yes warnings=extra werror=yes module_text_server_fb_enabled=yes strict_checks=yes build_profile=${{ inputs.build_profile }} linker=lld
-  SCRIPT_AES256_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   TSAN_OPTIONS: suppressions=misc/error_suppressions/tsan.txt
@@ -91,6 +90,10 @@ jobs:
           repository: ${{ inputs.repo }}
           ref: ${{ inputs.tag }}
           submodules: recursive
+
+      - name: Export Encryption Key
+        if: ${{ secrets.ENCRYPTION_KEY != '' }}
+        run: echo "SCRIPT_AES256_ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}" >> $GITHUB_ENV
 
       # Need newer mesa for lavapipe to work properly.
       - name: Linux dependencies for tests

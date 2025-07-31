@@ -46,7 +46,6 @@ env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: 4.4
   SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no optimize=size use_closure_compiler=yes strict_checks=yes ${{ inputs.module_flags }} build_profile=${{ inputs.build_profile }} use_static_cpp=yes
-  SCRIPT_AES256_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
   EM_VERSION: 3.1.64
 
 jobs:
@@ -95,6 +94,10 @@ jobs:
           repository: ${{ inputs.repo }}
           ref: ${{ inputs.tag }}
           submodules: recursive
+
+      - name: Export Encryption Key
+        if: ${{ secrets.ENCRYPTION_KEY != '' }}
+        run: echo "SCRIPT_AES256_ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}" >> $GITHUB_ENV
 
       - name: Set up Emscripten latest
         uses: mymindstorm/setup-emsdk@v14
