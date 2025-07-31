@@ -20,6 +20,9 @@ on:
       APPLE_TEAM_ID:
         description: Apple Team ID for notarization.
         required: false
+      ENCRYPTION_KEY:
+        description: Encryption key for the build
+        required: false
     inputs:
       lto:
         description: 'LTO mode. Options: "none", "thin", "full"'
@@ -35,11 +38,6 @@ on:
         required: true
         type: string
         default: '4.4.1-stable'
-      encryption_key:
-        description: Encryption key for the build
-        required: false
-        type: string
-        default: '7f5ddb606888db9a20dbf00b76f9b426f81e48d299c7093d5119b39967bae8f1'
       build_profile:
         description: 'Build profile file path.'
         required: false
@@ -61,7 +59,7 @@ env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: 4.4
   SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes debug_symbols=no ${{ inputs.module_flags }} build_profile=${{ inputs.build_profile }}
-  SCRIPT_AES256_ENCRYPTION_KEY: ${{ inputs.encryption_key }}
+  SCRIPT_AES256_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
 
 jobs:
   release:

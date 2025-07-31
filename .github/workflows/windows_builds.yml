@@ -1,6 +1,10 @@
 name: 🏁 Windows Builds
 on:
   workflow_call:
+    secrets:
+      ENCRYPTION_KEY:
+        description: Encryption key for the build
+        required: false
     inputs:
       lto:
         description: 'LTO mode. Options: "none", "full"'
@@ -43,7 +47,7 @@ env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: 4.4
   SCONSFLAGS: verbose=yes warnings=extra module_text_server_fb_enabled=yes d3d12=yes strict_checks=yes "angle_libs=${{ github.workspace }}/" "mesa_libs=${{ github.workspace }}/" debug_symbols=no vsproj=yes vsproj_gen_only=no windows_subsystem=console ${{ inputs.module_flags }} build_profile=${{ inputs.build_profile }} use_static_cpp=yes
-  SCRIPT_AES256_ENCRYPTION_KEY: ${{ inputs.encryption_key }}
+  SCRIPT_AES256_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
   SCONS_CACHE_MSVC_CONFIG: true
 
 jobs:

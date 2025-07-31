@@ -1,6 +1,10 @@
 name: 🍎 macOS Builds
 on:
   workflow_call:
+    secrets:
+      ENCRYPTION_KEY:
+        description: Encryption key for the build
+        required: false
     inputs:
       lto:
         description: 'LTO mode. Options: "none", "thin", "full"'
@@ -42,7 +46,7 @@ env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: 4.4
   SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes debug_symbols=no build_profile=${{ inputs.build_profile }} use_static_cpp=yes
-  SCRIPT_AES256_ENCRYPTION_KEY: ${{ inputs.encryption_key }}
+  SCRIPT_AES256_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
 
 jobs:
   build-macos:
