@@ -192,7 +192,6 @@ jobs:
           set -e
           VERSION=${{ inputs.tag }}
           VERSION_CLEAN=${VERSION//-/.}
-          mkdir -p release/templates/$VERSION_CLEAN
           
           # Editors. Rename them
           mv bin/godot.linuxbsd.editor.x86_64 bin/Godot_v${VERSION}_linux.x86_64
@@ -234,6 +233,8 @@ jobs:
           cp bin/godot_ios.zip "release/templates/ios.zip"
 
           cp -f bin/android_source.zip "release/templates/"
+          cp -f bin/android_release.apk "release/templates/"
+          cp -f bin/android_debug.apk "release/templates/"
 
           cp bin/godot.web.template_release.wasm32.zip "release/templates/web_release.zip"
           cp bin/godot.web.template_debug.wasm32.zip "release/templates/web_debug.zip"
