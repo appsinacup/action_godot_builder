@@ -223,6 +223,13 @@ jobs:
           cp bin/godot.windows.template_debug.arm64.exe "release/templates/windows_debug_arm64.exe"
           cp bin/godot.windows.template_release.arm64.exe "release/templates/windows_release_arm64.exe"
 
+          cp bin/godot.windows.template_debug.x86_64_console.exe "release/templates/windows_debug_x86_64_console.exe"
+          cp bin/godot.windows.template_release.x86_64_console.exe "release/templates/windows_release_x86_64_console.exe"
+          cp bin/godot.windows.template_debug.x86_32_console.exe "release/templates/windows_debug_x86_32_console.exe"
+          cp bin/godot.windows.template_release.x86_32_console.exe "release/templates/windows_release_x86_32_console.exe"
+          cp bin/godot.windows.template_debug.arm64_console.exe "release/templates/windows_debug_arm64_console.exe"
+          cp bin/godot.windows.template_release.arm64_console.exe "release/templates/windows_release_arm64_console.exe"
+
           cp bin/macos.zip "release/templates/macos.zip"
           cp bin/godot_ios.zip "release/templates/ios.zip"
 
