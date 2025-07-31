@@ -45,10 +45,11 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto }}
-      encryption_key: ${{ secrets.SCRIPT_AES256_KEY }}
       build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
+    secrets:
+      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
 
   ios-build:
     name: 🍏 iOS
@@ -57,10 +58,11 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto }}
-      encryption_key: ${{ secrets.SCRIPT_AES256_KEY }}
       build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
+    secrets:
+      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
 
   linux-build:
     name: 🐧 Linux
@@ -69,10 +71,11 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
-      encryption_key: ${{ secrets.SCRIPT_AES256_KEY }}
       build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
+    secrets:
+      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
   
   macos-build:
     name: 🍎 macOS
@@ -81,10 +84,11 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto }}
-      encryption_key: ${{ secrets.SCRIPT_AES256_KEY }}
       build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
+    secrets:
+      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
 
   windows-build:
     name: 🏁 Windows
@@ -93,10 +97,11 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
-      encryption_key: ${{ secrets.SCRIPT_AES256_KEY }}
       build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
+    secrets:
+      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
 
   web-build:
     name: 🌐 Web
@@ -105,10 +110,11 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto }}
-      encryption_key: ${{ secrets.SCRIPT_AES256_KEY }}
       build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
+    secrets:
+      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
 
   release:
     name: 🚀 Create Release
@@ -124,7 +130,6 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto }}
-      encryption_key: ${{ secrets.SCRIPT_AES256_KEY }}
       build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
@@ -135,3 +140,4 @@ jobs:
       APPLE_ID: ${{ secrets.APPLE_ID }}
       APP_SPECIFIC_PASSWORD: ${{ secrets.APP_SPECIFIC_PASSWORD }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
