@@ -21,7 +21,7 @@ on:
         description: 'Build profile file path.'
         required: false
         type: string
-        default: ''
+        default: 'build.profile'
       module_flags:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
         required: false
