@@ -61,39 +61,39 @@ jobs:
         include:
           - name: Editor (target=editor, arch=x86_64)
             target: editor
-            sconsflags: arch=x86_64
+            scons-flags: arch=x86_64
           
           - name: Editor (target=editor, arch=x86)
             target: editor
-            sconsflags: arch=x86
+            scons-flags: arch=x86
 
           - name: Editor (target=editor, arch=arm64)
             target: editor
-            sconsflags: arch=arm64
+            scons-flags: arch=arm64
 
           - name: Template (target=template_release, arch=x86_64)
             target: template_release
-            sconsflags: arch=x86_64
+            scons-flags: arch=x86_64
           
           - name: Template (target=template_release, arch=x86)
             target: template_release
-            sconsflags: arch=x86
+            scons-flags: arch=x86
           
           - name: Template (target=template_release, arch=arm64)
             target: template_release
-            sconsflags: arch=arm64
+            scons-flags: arch=arm64
           
           - name: Template (target=template_debug, arch=x86_64)
             target: template_debug
-            sconsflags: arch=x86_64
+            scons-flags: arch=x86_64
           
           - name: Template (target=template_debug, arch=x86)
             target: template_debug
-            sconsflags: arch=x86
+            scons-flags: arch=x86
           
           - name: Template (target=template_debug, arch=arm64)
             target: template_debug
-            sconsflags: arch=arm64
+            scons-flags: arch=arm64
 
     steps:
       - name: Checkout
@@ -110,7 +110,7 @@ jobs:
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
-          cache-name: windows-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.lto }}
+          cache-name: windows-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
         continue-on-error: true
 
       - name: Setup Python and SCons
@@ -122,7 +122,7 @@ jobs:
 # Angle
 
       - name: Download pre-built ANGLE static libraries for x86_64
-        if: matrix.sconsflags == 'arch=x86_64'
+        if: matrix.scons-flags == 'arch=x86_64'
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
           repo: godotengine/godot-angle-static
@@ -131,7 +131,7 @@ jobs:
           target: angle/angle.zip
       
       - name: Download pre-built ANGLE static libraries for x86_32
-        if: matrix.sconsflags == 'arch=x86'
+        if: matrix.scons-flags == 'arch=x86'
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
           repo: godotengine/godot-angle-static
@@ -140,7 +140,7 @@ jobs:
           target: angle/angle.zip
       
       - name: Download pre-built ANGLE static libraries for arm64
-        if: matrix.sconsflags == 'arch=arm64'
+        if: matrix.scons-flags == 'arch=arm64'
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
           repo: godotengine/godot-angle-static
@@ -154,7 +154,7 @@ jobs:
 # NIR
 
       - name: Download pre-built NIR
-        if: matrix.sconsflags == 'arch=x86_64'
+        if: matrix.scons-flags == 'arch=x86_64'
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
           repo: godotengine/godot-nir-static
@@ -163,7 +163,7 @@ jobs:
           target: nir/nir.zip
 
       - name: Download pre-built NIR for x86_32
-        if: matrix.sconsflags == 'arch=x86'
+        if: matrix.scons-flags == 'arch=x86'
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
           repo: godotengine/godot-nir-static
@@ -172,7 +172,7 @@ jobs:
           target: nir/nir.zip
       
       - name: Download pre-built NIR for arm64
-        if: matrix.sconsflags == 'arch=arm64'
+        if: matrix.scons-flags == 'arch=arm64'
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
           repo: godotengine/godot-nir-static
@@ -187,24 +187,22 @@ jobs:
         if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.module_flags }}
           platform: windows
           target: ${{ matrix.target }}
-          scons-cache-limit: 2
 
       - name: Compilation
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
           platform: windows
           target: ${{ matrix.target }}
-          scons-cache-limit: 2
 
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
-          cache-name: windows-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.lto }}
+          cache-name: windows-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
         continue-on-error: true
 
       - name: Prepare artifact
@@ -214,5 +212,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.lto }}
+          name: windows-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
           path: bin

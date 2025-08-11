@@ -51,7 +51,7 @@ env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
   SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no optimize=size use_closure_compiler=yes strict_checks=yes ${{ inputs.module_flags }} build_profile=${{ inputs.build_profile }} use_static_cpp=yes
-  EM_VERSION: 3.1.64
+  EM_VERSION: 4.0.11
   HAS_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY != '' }}
 
 jobs:
@@ -64,35 +64,35 @@ jobs:
         include:
           - name: Template w/ threads (target=template_release, threads=yes)
             target: template_release
-            sconsflags: threads=yes
+            scons-flags: threads=yes
 
           - name: Template w/o threads (target=template_release, threads=no)
             target: template_release
-            sconsflags: threads=no
+            scons-flags: threads=no
 
           - name: Template w/ threads (target=template_debug, threads=yes)
             target: template_debug
-            sconsflags: threads=yes
+            scons-flags: threads=yes
 
           - name: Template w/o threads (target=template_debug, threads=no)
             target: template_debug
-            sconsflags: threads=no
+            scons-flags: threads=no
           
           - name: Template w/ threads (target=template_release, threads=yes dlink_enabled=yes)
             target: template_release
-            sconsflags: threads=yes dlink_enabled=yes
+            scons-flags: threads=yes dlink_enabled=yes
 
           - name: Template w/o threads (target=template_release, threads=no dlink_enabled=yes)
             target: template_release
-            sconsflags: threads=no dlink_enabled=yes
+            scons-flags: threads=no dlink_enabled=yes
 
           - name: Template w/ threads (target=template_debug, threads=yes dlink_enabled=yes)
             target: template_debug
-            sconsflags: threads=yes dlink_enabled=yes
+            scons-flags: threads=yes dlink_enabled=yes
 
           - name: Template w/o threads (target=template_debug, threads=no dlink_enabled=yes)
             target: template_debug
-            sconsflags: threads=no dlink_enabled=yes
+            scons-flags: threads=no dlink_enabled=yes
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -118,7 +118,7 @@ jobs:
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
-          cache-name: web-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.lto }}
+          cache-name: web-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
         continue-on-error: true
 
       - name: Setup Python and SCons
@@ -127,19 +127,18 @@ jobs:
       - name: Compilation
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
           platform: web
           target: ${{ matrix.target }}
-          scons-cache-limit: 0.5
 
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
-          cache-name: web-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.lto }}
+          cache-name: web-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
         continue-on-error: true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: web-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.lto }}
+          name: web-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
           path: bin

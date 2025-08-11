@@ -77,18 +77,16 @@ jobs:
       - name: Compilation
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.lto }} ${{ inputs.template_module_flags }}
           platform: ios
           target: template_debug
-          scons-cache-limit: 1
 
       - name: Compilation
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.lto }} ${{ inputs.template_module_flags }} generate_bundle=yes
+          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.lto }} ${{ inputs.template_module_flags }} generate_bundle=yes
           platform: ios
           target: template_release
-          scons-cache-limit: 1
 
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save

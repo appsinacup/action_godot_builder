@@ -104,34 +104,30 @@ jobs:
       - name: Compilation x86_64
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} arch=x86_64
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} arch=x86_64
           platform: android
           target: ${{ matrix.target }}
-          scons-cache-limit: 1
 
       - name: Compilation x86
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} arch=x86
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} arch=x86
           platform: android
           target: ${{ matrix.target }}
-          scons-cache-limit: 1
 
       - name: Compilation arm64
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} arch=arm64
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} arch=arm64
           platform: android
           target: ${{ matrix.target }}
-          scons-cache-limit: 1
 
       - name: Compilation arm32
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} arch=arm32 generate_apk=yes
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} arch=arm32 generate_apk=yes
           platform: android
           target: ${{ matrix.target }}
-          scons-cache-limit: 1
 
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save

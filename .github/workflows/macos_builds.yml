@@ -58,15 +58,15 @@ jobs:
         include:
           - name: Editor (target=editor)
             target: editor
-            sconsflags: ''
+            scons-flags: ''
 
           - name: Template (target=template_release)
             target: template_release
-            sconsflags: ''
+            scons-flags: ''
           
           - name: Template (target=template_debug)
             target: template_debug
-            sconsflags: ''
+            scons-flags: ''
 
     steps:
       - name: Checkout
@@ -92,7 +92,7 @@ jobs:
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
-          cache-name: macos-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.lto }}
+          cache-name: macos-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
         continue-on-error: true
 
       - name: Setup Python and SCons
@@ -106,7 +106,7 @@ jobs:
         if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.module_flags }}
           platform: macos
           target: ${{ matrix.target }}
 
@@ -114,7 +114,7 @@ jobs:
         if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.module_flags }}
           platform: macos
           target: ${{ matrix.target }}
 
@@ -122,7 +122,7 @@ jobs:
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
           platform: macos
           target: ${{ matrix.target }}
 
@@ -130,14 +130,14 @@ jobs:
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
           platform: macos
           target: ${{ matrix.target }}
 
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
-          cache-name: macos-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.lto }}
+          cache-name: macos-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
         continue-on-error: true
 
       - name: Prepare artifact
@@ -149,5 +149,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: macos-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.lto }}
+          name: macos-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
           path: bin
