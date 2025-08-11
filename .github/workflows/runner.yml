@@ -11,12 +11,12 @@ on:
         description: 'Base branch to use for the builds'
         required: false
         type: string
-        default: '4.4'
+        default: '4.5'
       tag:
         description: 'tag to use for the build'
         required: false
         type: string
-        default: '4.4.1-stable'
+        default: 'gonuts'
       build_profile:
         description: 'Build profile file path.'
         required: false
