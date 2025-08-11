@@ -57,37 +57,12 @@ jobs:
       matrix:
         include:
 # Templates
-          - name: Template arm32 (target=template_release, arch=arm32)
+          - name: Template Release (target=template_release)
             target: template_release
-            sconsflags: arch=arm32
 
-          - name: Template arm64 (target=template_release, arch=arm64)
-            target: template_release
-            sconsflags: arch=arm64
-          
-          - name: Template x86 (target=template_release, arch=x86)
-            target: template_release
-            sconsflags: arch=x86
-          
-          - name: Template x86_64 (target=template_release, arch=x86_64)
-            target: template_release
-            sconsflags: arch=x86_64
+          - name: Template Debug (target=template_debug)
+            target: template_debug
 
-          - name: Template arm32 (target=template_debug, arch=arm32)
-            target: template_debug
-            sconsflags: arch=arm32
-
-          - name: Template arm64 (target=template_debug, arch=arm64)
-            target: template_debug
-            sconsflags: arch=arm64
-          
-          - name: Template x86 (target=template_debug, arch=x86)
-            target: template_debug
-            sconsflags: arch=x86
-          
-          - name: Template x86_64 (target=template_debug, arch=x86_64)
-            target: template_debug
-            sconsflags: arch=x86_64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -109,7 +84,7 @@ jobs:
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
-          cache-name: android-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.lto }}
+          cache-name: android-${{ matrix.target }}-${{ inputs.lto }}
         continue-on-error: true
 
       - name: Setup Python and SCons
@@ -126,10 +101,34 @@ jobs:
       - name: Extract pre-built Android Swappy Frame Pacing Library
         run: 7za x -y swappy/godot-swappy.7z -o${{github.workspace}}/thirdparty/swappy-frame-pacing
 
-      - name: Compilation
+      - name: Compilation x86_64
         uses: ./.github/actions/godot-build
         with:
-          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} arch=x86_64
+          platform: android
+          target: ${{ matrix.target }}
+          scons-cache-limit: 1
+
+      - name: Compilation x86
+        uses: ./.github/actions/godot-build
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} arch=x86
+          platform: android
+          target: ${{ matrix.target }}
+          scons-cache-limit: 1
+
+      - name: Compilation arm64
+        uses: ./.github/actions/godot-build
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} arch=arm64
+          platform: android
+          target: ${{ matrix.target }}
+          scons-cache-limit: 1
+
+      - name: Compilation arm32
+        uses: ./.github/actions/godot-build
+        with:
+          sconsflags: ${{ env.SCONSFLAGS }} ${{ matrix.sconsflags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} arch=arm32 generate_apk=yes
           platform: android
           target: ${{ matrix.target }}
           scons-cache-limit: 1
@@ -137,11 +136,11 @@ jobs:
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
-          cache-name: android-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.lto }}
+          cache-name: android-${{ matrix.target }}-${{ inputs.lto }}
         continue-on-error: true
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: android-${{ matrix.target }}-${{ matrix.sconsflags }}-${{ inputs.lto }}
+          name: android-${{ matrix.target }}-${{ inputs.lto }}
           path: bin
