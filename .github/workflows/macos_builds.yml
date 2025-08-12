@@ -45,7 +45,7 @@ on:
 env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
-  SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes debug_symbols=no build_profile=${{ inputs.build_profile }} use_static_cpp=yes
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes debug_symbols=no use_static_cpp=yes
   HAS_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY != '' }}
 
 jobs:
@@ -102,7 +102,7 @@ jobs:
         run: |
           sh misc/scripts/install_vulkan_sdk_macos.sh
 
-      - name: Compilation (x86_64)
+      - name: Compilation (x86_64 editor)
         if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
@@ -110,7 +110,7 @@ jobs:
           platform: macos
           target: ${{ matrix.target }}
 
-      - name: Compilation (arm64)
+      - name: Compilation (arm64 editor)
         if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
@@ -118,19 +118,19 @@ jobs:
           platform: macos
           target: ${{ matrix.target }}
 
-      - name: Compilation (x86_64)
+      - name: Compilation (x86_64 template)
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} build_profile=${{ inputs.build_profile }} 
           platform: macos
           target: ${{ matrix.target }}
 
-      - name: Compilation (arm64)
+      - name: Compilation (arm64 template)
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} build_profile=${{ inputs.build_profile }} 
           platform: macos
           target: ${{ matrix.target }}
 

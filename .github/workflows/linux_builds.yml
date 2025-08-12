@@ -45,7 +45,7 @@ on:
 env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
-  SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes build_profile=${{ inputs.build_profile }} linker=lld
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes linker=lld
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   TSAN_OPTIONS: suppressions=misc/error_suppressions/tsan.txt
@@ -140,7 +140,7 @@ jobs:
           python-version: 3.8
           scons-version: 4.0
 
-      - name: Compilation
+      - name: Compilation (Editor)
         if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
@@ -148,11 +148,11 @@ jobs:
           platform: linuxbsd
           target: ${{ matrix.target }}
       
-      - name: Compilation
+      - name: Compilation (Template)
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} build_profile=${{ inputs.build_profile }} 
           platform: linuxbsd
           target: ${{ matrix.target }}
 

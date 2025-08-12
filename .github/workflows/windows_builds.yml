@@ -46,7 +46,7 @@ on:
 env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
-  SCONSFLAGS: verbose=yes warnings=extra d3d12=yes strict_checks=yes "angle_libs=${{ github.workspace }}/" "mesa_libs=${{ github.workspace }}/" debug_symbols=no ${{ inputs.module_flags }} build_profile=${{ inputs.build_profile }} use_static_cpp=yes
+  SCONSFLAGS: verbose=yes warnings=extra d3d12=yes strict_checks=yes "angle_libs=${{ github.workspace }}/" "mesa_libs=${{ github.workspace }}/" debug_symbols=no ${{ inputs.module_flags }} use_static_cpp=yes
   SCONS_CACHE_MSVC_CONFIG: true
   HAS_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY != '' }}
 
@@ -183,7 +183,7 @@ jobs:
       - name: Extract pre-built NIR
         run: Expand-Archive -Force nir/nir.zip ${{ github.workspace }}/
 
-      - name: Compilation
+      - name: Compilation (editor)
         if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
@@ -191,11 +191,11 @@ jobs:
           platform: windows
           target: ${{ matrix.target }}
 
-      - name: Compilation
+      - name: Compilation (template)
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} build_profile=${{ inputs.build_profile }} 
           platform: windows
           target: ${{ matrix.target }}
 
