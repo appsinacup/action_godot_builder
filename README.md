@@ -3,7 +3,7 @@
 |[Website](https://appsinacup.com)|[Discord](https://discord.gg/56dMud8HYn)|
 |-|-|
 
-Action that builds a custom version of the Godot Engine. You can set a custom godot repo, [encryption key](https://docs.godotengine.org/en/4.2/contributing/development/compiling/compiling_with_script_encryption_key.html), base version, build profile and [modules to disable](https://docs.godotengine.org/en/4.2/development/compiling/optimizing_for_size.html).
+Action that builds a custom version of the Godot Engine. You can set a custom godot repo, [encryption key](https://docs.godotengine.org/en/4.2/contributing/development/compiling/compiling_with_script_encryption_key.html), base version and [modules to disable](https://docs.godotengine.org/en/4.2/development/compiling/optimizing_for_size.html).
 
 Eg. for Godot 4.1 web template_releas builds (unzipped):
 - [normal build](https://github.com/appsinacup/action_godot_builder/releases/tag/v1.2.3): 42 MB
