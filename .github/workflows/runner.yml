@@ -31,7 +31,7 @@ on:
         description: 'Extra module flags for template build, e.g. module_webm_enabled=no'
         required: false
         type: string
-        default: 'disable_3d=yes deprecated="no"'
+        default: 'disable_3d=yes deprecated=no'
       lto:
         description: 'LTO mode. Options: "none", "thin", "full"'
         required: false
