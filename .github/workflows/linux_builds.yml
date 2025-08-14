@@ -25,11 +25,6 @@ on:
         required: true
         type: string
         default: '4.4.1-stable'
-      build_profile:
-        description: 'Build profile file path.'
-        required: false
-        type: string
-        default: ''
       module_flags:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
         required: false
@@ -152,7 +147,7 @@ jobs:
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} build_profile=${{ inputs.build_profile }} 
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
           platform: linuxbsd
           target: ${{ matrix.target }}
 

@@ -43,11 +43,6 @@ on:
         required: true
         type: string
         default: '4.4.1-stable'
-      build_profile:
-        description: 'Build profile file path.'
-        required: false
-        type: string
-        default: ''
       module_flags:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
         required: false
@@ -63,7 +58,7 @@ on:
 env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
-  SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes debug_symbols=no ${{ inputs.module_flags }} build_profile=${{ inputs.build_profile }}
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes strict_checks=yes debug_symbols=no ${{ inputs.module_flags }}
   HAS_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY != '' }}
 
 jobs:

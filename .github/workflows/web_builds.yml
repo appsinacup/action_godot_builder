@@ -29,11 +29,6 @@ on:
         description: Encryption key for the build
         required: false
         type: string
-        default: '7f5ddb606888db9a20dbf00b76f9b426f81e48d299c7093d5119b39967bae8f1'
-      build_profile:
-        description: 'Build profile file path.'
-        required: false
-        type: string
         default: ''
       module_flags:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
@@ -50,7 +45,7 @@ on:
 env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
-  SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no optimize=size use_closure_compiler=yes strict_checks=yes ${{ inputs.module_flags }} build_profile=${{ inputs.build_profile }} use_static_cpp=yes
+  SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no optimize=size use_closure_compiler=yes strict_checks=yes ${{ inputs.module_flags }} use_static_cpp=yes
   EM_VERSION: 4.0.11
   HAS_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY != '' }}
 

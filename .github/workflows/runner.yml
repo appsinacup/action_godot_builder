@@ -17,11 +17,6 @@ on:
         required: false
         type: string
         default: 'gonuts'
-      build_profile:
-        description: 'Build profile file path.'
-        required: false
-        type: string
-        default: 'profile.build'
       module_flags:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
         required: false
@@ -50,7 +45,6 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto }}
-      build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
     secrets:
@@ -63,7 +57,6 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto }}
-      build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
     secrets:
@@ -76,7 +69,6 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
-      build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
     secrets:
@@ -89,7 +81,6 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto }}
-      build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
     secrets:
@@ -102,7 +93,6 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
-      build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
     secrets:
@@ -115,7 +105,6 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto }}
-      build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
     secrets:
@@ -135,7 +124,6 @@ jobs:
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       lto: ${{ inputs.lto }}
-      build_profile: ${{ inputs.build_profile }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
     secrets:
