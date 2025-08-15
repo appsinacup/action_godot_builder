@@ -157,37 +157,12 @@ jobs:
 
       - name: Mac Create Template Bundle
         run: |
-
           cp -r misc/dist/macos_template.app ./bin
           mkdir -p bin/macos_template.app/Contents/MacOS
           cp bin/godot.macos.template_release.universal bin/macos_template.app/Contents/MacOS/godot_macos_release.universal
           cp bin/godot.macos.template_debug.universal bin/macos_template.app/Contents/MacOS/godot_macos_debug.universal
           chmod +x bin/macos_template.app/Contents/MacOS/godot_macos*
           cd bin && zip -q -9 -r macos.zip macos_template.app && cd ..
-      
-      - name: Set up Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Download pre-built Android Swappy Frame Pacing Library
-        uses: dsaltares/fetch-gh-release-asset@1.1.2
-        with:
-          repo: godotengine/godot-swappy
-          version: tags/from-source-2025-01-31
-          file: godot-swappy.7z
-          target: swappy/godot-swappy.7z
-
-      - name: Extract pre-built Android Swappy Frame Pacing Library
-        run: 7za x -y swappy/godot-swappy.7z -o${{github.workspace}}/thirdparty/swappy-frame-pacing
-
-      - name: Android Generate Godot templates
-        run: |
-          cd platform/android/java
-          ./gradlew generateGodotTemplates
-          cd ../../..
-          ls -l bin/
 
       - name: Package per-platform editors and templates
         run: |
@@ -200,7 +175,6 @@ jobs:
           mv bin/godot.linuxbsd.editor.x86_64 bin/Godot_v${VERSION}_linux.x86_64
           mv bin/godot.linuxbsd.editor.x86_32 bin/Godot_v${VERSION}_linux.x86_32
           mv bin/godot.windows.editor.x86_64.exe bin/Godot_v${VERSION}_win64.exe
-          mv bin/godot.windows.editor.x86_32.exe bin/Godot_v${VERSION}_win32.exe
           mv bin/godot.windows.editor.arm64.exe bin/Godot_v${VERSION}_windows_arm64.exe
           echo "Editors renamed to:"
           ls bin
@@ -209,7 +183,6 @@ jobs:
           zip -q -9 -r ../release/Godot_v${VERSION}_linux.x86_64.zip Godot_v${VERSION}_linux.x86_64
           zip -q -9 -r ../release/Godot_v${VERSION}_linux.x86_32.zip Godot_v${VERSION}_linux.x86_32
           zip -q -9 -r ../release/Godot_v${VERSION}_win64.exe.zip Godot_v${VERSION}_win64.exe
-          zip -q -9 -r ../release/Godot_v${VERSION}_win32.exe.zip Godot_v${VERSION}_win32.exe
           zip -q -9 -r ../release/Godot_v${VERSION}_windows_arm64.exe.zip Godot_v${VERSION}_windows_arm64.exe
           zip -q -9 -r ../release/Godot_v${VERSION}_macos.universal.zip Godot.app
           cd ..
@@ -269,7 +242,6 @@ jobs:
             release/Godot_v${{ inputs.tag }}_linux.x86_64.zip
             release/Godot_v${{ inputs.tag }}_linux.x86_32.zip
             release/Godot_v${{ inputs.tag }}_win64.exe.zip
-            release/Godot_v${{ inputs.tag }}_win32.exe.zip
             release/Godot_v${{ inputs.tag }}_windows_arm64.exe.zip
             release/Godot_v${{ inputs.tag }}_macos.universal.zip
             release/Godot_v${{ inputs.tag }}_export_templates.tpz

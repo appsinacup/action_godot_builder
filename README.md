@@ -20,7 +20,7 @@ If it's cached, the build takes 10 minutes for all targets. Full build can take 
 - **iOS** (template arm64)
 - **Linux** (editor x64, template x64, x32)
 - **macOS** (editor universal, template universal)
-- **Windows** (editor x86, x32, arm64, template x86, x32, arm64)
+- **Windows** (editor x86, arm64, template x86, x32, arm64)
 - **Web** (template threads and nothreads, and dlink)
 
 It then creates a draft release (if satisfied with it, you can make a release and use it).
