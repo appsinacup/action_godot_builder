@@ -43,6 +43,11 @@ on:
         required: true
         type: string
         default: '4.4.1-stable'
+      tag_release:
+        description: 'tag to use for releasing the build'
+        required: false
+        type: string
+        default: '4.4.1-stable'
       module_flags:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
         required: false
@@ -168,7 +173,7 @@ jobs:
         run: |
           mkdir -p release/templates
           set -e
-          VERSION=${{ inputs.tag }}
+          VERSION=${{ inputs.tag_release }}
           VERSION_CLEAN=${VERSION//-/.}
           
           # Editors. Rename them
@@ -236,14 +241,14 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
-          name: "Custom Godot ${{ inputs.tag }}"
+          name: "Custom Godot ${{ inputs.tag_release }}"
           draft: true
           files: |
-            release/Godot_v${{ inputs.tag }}_linux.x86_64.zip
-            release/Godot_v${{ inputs.tag }}_linux.x86_32.zip
-            release/Godot_v${{ inputs.tag }}_win64.exe.zip
-            release/Godot_v${{ inputs.tag }}_windows_arm64.exe.zip
-            release/Godot_v${{ inputs.tag }}_macos.universal.zip
-            release/Godot_v${{ inputs.tag }}_export_templates.tpz
+            release/Godot_v${{ inputs.tag_release }}_linux.x86_64.zip
+            release/Godot_v${{ inputs.tag_release }}_linux.x86_32.zip
+            release/Godot_v${{ inputs.tag_release }}_win64.exe.zip
+            release/Godot_v${{ inputs.tag_release }}_windows_arm64.exe.zip
+            release/Godot_v${{ inputs.tag_release }}_macos.universal.zip
+            release/Godot_v${{ inputs.tag_release }}_export_templates.tpz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
