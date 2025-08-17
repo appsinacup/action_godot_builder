@@ -169,6 +169,19 @@ jobs:
           chmod +x bin/macos_template.app/Contents/MacOS/godot_macos*
           cd bin && zip -q -9 -r macos.zip macos_template.app && cd ..
 
+      - name: Assemble Android sources (debug + release) into one zip
+        run: |
+          mkdir -p work/android_release work/android_debug work/android_src
+          unzip -q bin/android_source.release.zip -d work/android_release
+          unzip -q bin/android_source.debug.zip -d work/android_debug
+
+          cp -a work/android_release/. work/android_src/
+          mkdir -p work/android_src/libs/debug work/android_src/libs/release
+
+          cp -a work/android_debug/libs/debug/. work/android_src/libs/debug/
+          
+          ( cd work/android_src && zip -q -9 -r ../../bin/android_source.zip . )
+
       - name: Package per-platform editors and templates
         run: |
           mkdir -p release/templates
