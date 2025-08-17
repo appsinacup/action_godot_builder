@@ -69,6 +69,10 @@ jobs:
       - name: Setup Python and SCons
         uses: ./.github/actions/godot-deps
 
+      - name: Setup Vulkan SDK
+        run: |
+          sh misc/scripts/install_vulkan_sdk_macos.sh
+
       - name: Compilation
         uses: ./.github/actions/godot-build
         with:
