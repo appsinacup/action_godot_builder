@@ -28,12 +28,10 @@ on:
         description: 'Base branch to use for the builds'
         required: false
         type: string
-        default: '4.4'
       lto:
         description: 'LTO mode. Options: "none", "thin", "full"'
         required: false
         type: string
-        default: "lto=thin"
       repo:
         description: 'Repository to use for the build'
         default: 'godotengine/godot'
@@ -42,22 +40,22 @@ on:
         description: 'tag to use for the build'
         required: true
         type: string
-        default: '4.4.1-stable'
       tag_release:
         description: 'tag to use for releasing the build'
         required: false
         type: string
-        default: '4.4.1-stable'
       module_flags:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
         required: false
         type: string
-        default: ''
       template_module_flags:
         description: 'Extra module flags for template build, e.g. module_webm_enabled=no'
         required: false
         type: string
-        default: ''
+      release_description:
+        description: 'Description for the release'
+        required: false
+        type: string
 
 # Global Settings
 env:
@@ -253,9 +251,18 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: "Custom Godot ${{ inputs.tag_release }}"
+          tag_name: ${{ github.tag }}-${{ inputs.tag_release }}_${{ inputs.template_module_flags }}
+          name: "Gonuts ${{ inputs.tag_release }} - ${{ inputs.template_module_flags }}"
           draft: true
+          body: |
+            ${{ inputs.release_description }}
+            Info:
+            - Repo: [${{ inputs.repo }}](https://github.com/${{ inputs.repo }})
+            - Base Version: ${{ inputs.tag_release }}
+            - Optimization: ${{ inputs.lto }}
+            - Module Flags: ${{ inputs.module_flags }}
+            - Template Module Flags: ${{ inputs.template_module_flags }}
+            - Build Branch: ${{ inputs.base-branch }}
           files: |
             release/Godot_v${{ inputs.tag_release }}_linux.x86_64.zip
             release/Godot_v${{ inputs.tag_release }}_linux.x86_32.zip

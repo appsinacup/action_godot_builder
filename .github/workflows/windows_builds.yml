@@ -10,12 +10,10 @@ on:
         description: 'Base branch to use for the builds'
         required: false
         type: string
-        default: '4.4'
       lto:
         description: 'LTO mode. Options: "none", "full"'
         required: false
         type: string
-        default: "lto=none"
       repo:
         description: 'Repository to use for the build'
         default: 'godotengine/godot'
@@ -24,17 +22,14 @@ on:
         description: 'tag to use for the build'
         required: true
         type: string
-        default: '4.4.1-stable'
       module_flags:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
         required: false
         type: string
-        default: ''
       template_module_flags:
         description: 'Extra module flags for template build, e.g. module_webm_enabled=no'
         required: false
         type: string
-        default: ''
 
 # Global Settings
 # SCONS_CACHE for windows must be set in the build environment
