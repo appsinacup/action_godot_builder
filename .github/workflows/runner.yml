@@ -37,16 +37,6 @@ on:
         required: false
         type: string
         default: "lto=thin"
-      release_description:
-        description: 'Description for the release'
-        required: false
-        type: string
-        default: |
-          Modules added:
-
-          - tiny_lobby integration
-          - GodotSteam integration
-          - DiscordEmbeddedApp integration
 
 #concurrency:
 #  group: ${{ github.workflow }}|${{ github.ref_name }}

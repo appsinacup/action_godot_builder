@@ -52,10 +52,6 @@ on:
         description: 'Extra module flags for template build, e.g. module_webm_enabled=no'
         required: false
         type: string
-      release_description:
-        description: 'Description for the release'
-        required: false
-        type: string
 
 # Global Settings
 env:
@@ -255,8 +251,14 @@ jobs:
           name: "Gonuts ${{ inputs.tag_release }} - ${{ inputs.template_module_flags }}"
           draft: true
           body: |
-            ${{ inputs.release_description }}
-            Info:
+            # Modules added:
+
+            - [tiny_lobby](https://appsinacup.com/tiny-lobby/): Integrate with multiplayer C++ server with Lobby Management and Lua scripting.
+            - [GodotSteam](https://godotsteam.com): Integrate your game with Steam.
+            - [DiscordEmbeddedApp](https://discord.com/developers/docs/developer-tools/embedded-app-sdk): Integrate with Discord for your web game.
+
+            # Info:
+            
             - Repo: [${{ inputs.repo }}](https://github.com/${{ inputs.repo }})
             - Base Version: ${{ inputs.tag_release }}
             - Optimization: ${{ inputs.lto }}
