@@ -126,6 +126,7 @@ jobs:
       - web-build
     uses: ./.github/workflows/release.yml
     with:
+      base-branch: ${{ inputs.base-branch }}
       repo: ${{ inputs.repo }}
       tag: ${{ inputs.tag }}
       tag_release: ${{ inputs.tag_release }}

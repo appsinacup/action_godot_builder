@@ -247,7 +247,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.tag }}-${{ inputs.tag_release }}_${{ inputs.template_module_flags }}
+          tag_name: ${{ inputs.tag }}-${{ inputs.tag_release }}_${{ inputs.template_module_flags }}
           name: "Gonuts ${{ inputs.tag_release }} - ${{ inputs.template_module_flags }}"
           draft: true
           body: |
@@ -258,11 +258,10 @@ jobs:
             - [DiscordEmbeddedApp](https://discord.com/developers/docs/developer-tools/embedded-app-sdk): Integrate with Discord for your web game.
 
             # Info:
-            
+
             - Repo: [${{ inputs.repo }}](https://github.com/${{ inputs.repo }})
             - Base Version: ${{ inputs.tag_release }}
             - Optimization: ${{ inputs.lto }}
-            - Module Flags: ${{ inputs.module_flags }}
             - Template Module Flags: ${{ inputs.template_module_flags }}
             - Build Branch: ${{ inputs.base-branch }}
           files: |
