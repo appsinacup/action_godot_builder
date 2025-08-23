@@ -35,13 +35,20 @@ on:
       lto:
         description: 'LTO mode. Options: "none", "thin", "full"'
         required: false
-        type: string
+        type: choice
         default: "lto=thin"
+        options:
+          - "none"
+          - "lto=thin"
+          - "lto=full"
       use_encryption_key:
-        description: 'Whether to use the encryption key for the build (if available)'
+        description: 'Use Encryption Key.'
         required: false
-        type: boolean
-        default: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 #concurrency:
 #  group: ${{ github.workflow }}|${{ github.ref_name }}

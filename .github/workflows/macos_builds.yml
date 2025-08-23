@@ -62,7 +62,7 @@ jobs:
           submodules: recursive
       
       - name: Export Encryption Key
-        if: ${{ env.use_encryption_key == 'true' }}
+        if: ${{ inputs.use_encryption_key == 'true' }}
         run: echo "SCRIPT_AES256_ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}" >> $GITHUB_ENV
 
       - name: Select Xcode 16
