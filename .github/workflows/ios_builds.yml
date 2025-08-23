@@ -4,39 +4,34 @@ on:
     secrets:
       ENCRYPTION_KEY:
         description: Encryption key for the build
-        required: false
     inputs:
       base-branch:
         description: 'Base branch to use for the builds'
-        required: false
         type: string
       lto:
         description: 'LTO mode. Options: "none", "thin", "full"'
-        required: false
         type: string
       repo:
         description: 'Repository to use for the build'
-        default: 'godotengine/godot'
         type: string
       tag:
         description: 'tag to use for the build'
-        required: true
         type: string
       module_flags:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
-        required: false
         type: string
       template_module_flags:
         description: 'Extra module flags for template build, e.g. module_webm_enabled=no'
-        required: false
         type: string
+      use_encryption_key:
+        description: 'Whether to use the encryption key for the build (if available)'
+        type: boolean
 
 # Global Settings
 env:
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
   SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no strict_checks=yes ${{ inputs.module_flags }} use_static_cpp=yes
-  HAS_ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY != '' }}
 
 jobs:
   ios-template:
@@ -52,7 +47,7 @@ jobs:
           submodules: recursive
 
       - name: Export Encryption Key
-        if: ${{ env.HAS_ENCRYPTION_KEY == 'true' }}
+        if: ${{ env.use_encryption_key == 'true' }}
         run: echo "SCRIPT_AES256_ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}" >> $GITHUB_ENV
 
       - name: Restore Godot build cache

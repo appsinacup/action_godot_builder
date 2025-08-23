@@ -37,6 +37,11 @@ on:
         required: false
         type: string
         default: "lto=thin"
+      use_encryption_key:
+        description: 'Whether to use the encryption key for the build (if available)'
+        required: false
+        type: boolean
+        default: true
 
 #concurrency:
 #  group: ${{ github.workflow }}|${{ github.ref_name }}
@@ -52,6 +57,7 @@ jobs:
       lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
+      use_encryption_key: ${{ inputs.use_encryption_key }}
     secrets:
       ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
 
@@ -64,6 +70,7 @@ jobs:
       lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
+      use_encryption_key: ${{ inputs.use_encryption_key }}
     secrets:
       ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
 
@@ -76,6 +83,7 @@ jobs:
       lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
+      use_encryption_key: ${{ inputs.use_encryption_key }}
     secrets:
       ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
   
@@ -88,6 +96,7 @@ jobs:
       lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
+      use_encryption_key: ${{ inputs.use_encryption_key }}
     secrets:
       ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
 
@@ -100,6 +109,7 @@ jobs:
       lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
+      use_encryption_key: ${{ inputs.use_encryption_key }}
     secrets:
       ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
 
@@ -112,6 +122,7 @@ jobs:
       lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
+      use_encryption_key: ${{ inputs.use_encryption_key }}
     secrets:
       ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
 
@@ -133,6 +144,7 @@ jobs:
       lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
+      use_encryption_key: ${{ inputs.use_encryption_key }}
     secrets:
       BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
       P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
