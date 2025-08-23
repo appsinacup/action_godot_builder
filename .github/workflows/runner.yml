@@ -4,37 +4,30 @@ on:
     inputs:
       repo:
         description: 'Repository to use for the build'
-        required: false
         type: string
         default: 'appsinacup/gonuts'
       base-branch:
         description: 'Base branch to use for the builds'
-        required: false
         type: string
         default: '4.5'
       tag:
         description: 'tag to use for downloading the repo'
-        required: false
         type: string
         default: 'gonuts'
       tag_release:
         description: 'tag to use for releasing the build'
-        required: false
         type: string
         default: '4.5.beta'
       module_flags:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
-        required: false
         type: string
         default: ''
       template_module_flags:
         description: 'Extra module flags for template build, e.g. module_webm_enabled=no'
-        required: false
         type: string
         default: 'disable_3d=yes'
       lto:
         description: 'LTO mode. Options: "none", "thin", "full"'
-        required: false
         type: choice
         default: "lto=thin"
         options:
@@ -43,16 +36,11 @@ on:
           - "lto=full"
       use_encryption_key:
         description: 'Use Encryption Key.'
-        required: false
-        default: 'true'
+        default: "true"
         type: choice
         options:
-          - 'true'
-          - 'false'
-
-#concurrency:
-#  group: ${{ github.workflow }}|${{ github.ref_name }}
-#  cancel-in-progress: true
+          - "true"
+          - "false"
 
 jobs:
   android-build:
