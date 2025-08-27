@@ -40,7 +40,7 @@ on:
         type: string
       use_encryption_key:
         description: 'Whether to use the encryption key for the build (if available)'
-        type: boolean
+        type: string
 
 # Global Settings
 env:
