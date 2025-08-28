@@ -242,8 +242,9 @@ jobs:
             # Modules added:
 
             - [tiny_lobby](https://appsinacup.com/tiny-lobby/): Integrate with multiplayer C++ server with Lobby Management and Lua scripting.
-            - [GodotSteam](https://godotsteam.com): Integrate your game with Steam.
+            - [Steam](https://godotsteam.com): Integrate your game with Steam.
             - [DiscordEmbeddedApp](https://discord.com/developers/docs/developer-tools/embedded-app-sdk): Integrate with Discord for your web game.
+            - [Terminal](https://github.com/markeel/gdterm): Run terminal commands from the Editor.
 
             # Info:
 
