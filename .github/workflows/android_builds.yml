@@ -1,9 +1,6 @@
 name: 🤖 Android Builds
 on:
   workflow_call:
-    secrets:
-      ENCRYPTION_KEY:
-        description: Encryption key for the build
     inputs:
       base-branch:
         description: 'Base branch to use for the builds'
@@ -29,6 +26,7 @@ on:
 
 # Global Settings
 env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
   SCONSFLAGS: verbose=yes warnings=extra werror=yes debug_symbols=no strict_checks=yes swappy=yes ${{ inputs.module_flags }} use_static_cpp=yes

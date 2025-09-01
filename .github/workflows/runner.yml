@@ -53,8 +53,7 @@ jobs:
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
       use_encryption_key: ${{ inputs.use_encryption_key }}
-    secrets:
-      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+    secrets: inherit
 
   ios-build:
     name: 🍏 iOS
@@ -66,8 +65,7 @@ jobs:
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
       use_encryption_key: ${{ inputs.use_encryption_key }}
-    secrets:
-      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+    secrets: inherit
 
   linux-build:
     name: 🐧 Linux
@@ -79,8 +77,7 @@ jobs:
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
       use_encryption_key: ${{ inputs.use_encryption_key }}
-    secrets:
-      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+    secrets: inherit
   
   macos-build:
     name: 🍎 macOS
@@ -92,8 +89,7 @@ jobs:
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
       use_encryption_key: ${{ inputs.use_encryption_key }}
-    secrets:
-      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+    secrets: inherit
 
   windows-build:
     name: 🏁 Windows
@@ -105,8 +101,7 @@ jobs:
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
       use_encryption_key: ${{ inputs.use_encryption_key }}
-    secrets:
-      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+    secrets: inherit
 
   web-build:
     name: 🌐 Web
@@ -118,8 +113,7 @@ jobs:
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
       use_encryption_key: ${{ inputs.use_encryption_key }}
-    secrets:
-      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+    secrets: inherit
 
   release:
     name: 🚀 Create Release
@@ -140,11 +134,4 @@ jobs:
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
       use_encryption_key: ${{ inputs.use_encryption_key }}
-    secrets:
-      BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
-      P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
-      KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      APP_SPECIFIC_PASSWORD: ${{ secrets.APP_SPECIFIC_PASSWORD }}
-      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+    secrets: inherit
