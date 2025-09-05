@@ -23,9 +23,9 @@ on:
         type: string
         default: ''
       template_module_flags:
-        description: 'Extra module flags for template build, e.g. module_webm_enabled=no'
+        description: 'Extra module flags for template build, e.g. disable_3d=yes'
         type: string
-        default: 'disable_3d=yes'
+        default: ''
       lto:
         description: 'LTO mode. Options: "none", "thin", "full"'
         type: choice
@@ -36,7 +36,7 @@ on:
           - "lto=full"
       use_encryption_key:
         description: 'Use Encryption Key.'
-        default: "true"
+        default: "false"
         type: choice
         options:
           - "true"
