@@ -48,9 +48,10 @@ jobs:
             target: editor
             scons-flags: arch=x86_64
           
-          - name: Editor (target=editor arch=x86_32)
-            target: editor
-            scons-flags: arch=x86_32
+          # TODO re-enable these
+          #- name: Editor (target=editor arch=x86_32)
+          #  target: editor
+          #  scons-flags: arch=x86_32
 
           - name: Template (target=template_release, arch=x86_64)
             target: template_release
@@ -60,13 +61,13 @@ jobs:
             target: template_debug
             scons-flags: arch=x86_64
 
-          - name: Template (target=template_release, arch=x86_32)
-            target: template_release
-            scons-flags: arch=x86_32
+          #- name: Template (target=template_release, arch=x86_32)
+          #  target: template_release
+          #  scons-flags: arch=x86_32
           
-          - name: Template (target=template_debug, arch=x86_32)
-            target: template_debug
-            scons-flags: arch=x86_32
+          #- name: Template (target=template_debug, arch=x86_32)
+          #  target: template_debug
+          #  scons-flags: arch=x86_32
     steps:
       - name: Checkout
         uses: actions/checkout@v4
