@@ -225,6 +225,7 @@ jobs:
           name: "Gonuts ${{ inputs.tag_release }} - ${{ inputs.template_module_flags }}"
           draft: true
           repository: ${{ inputs.repo }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           body: |
             # Modules added:
 
