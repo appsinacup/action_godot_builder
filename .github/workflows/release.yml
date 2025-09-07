@@ -224,6 +224,7 @@ jobs:
           tag_name: ${{ inputs.tag }}-${{ inputs.tag_release }}_${{ inputs.template_module_flags }}
           name: "Gonuts ${{ inputs.tag_release }} - ${{ inputs.template_module_flags }}"
           draft: true
+          repository: ${{ inputs.repo }}
           body: |
             # Modules added:
 
