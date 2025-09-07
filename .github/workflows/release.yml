@@ -231,6 +231,7 @@ jobs:
             - [Steam](https://godotsteam.com): Integrate your game with Steam.
             - [DiscordEmbeddedApp](https://discord.com/developers/docs/developer-tools/embedded-app-sdk): Integrate with Discord for your web game.
             - [Terminal](https://github.com/markeel/gdterm): Run terminal commands from the Editor.
+            - [VSCode](https://github.com/appsinacup/godot_vscode_ide): Integrate with VSCode inside the editor.
 
             # Info:
 
