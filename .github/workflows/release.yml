@@ -244,10 +244,7 @@ jobs:
             - Build Branch: ${{ inputs.base-branch }}
           files: |
             release/Godot_v${{ inputs.tag_release }}_linux.x86_64.zip
-            #release/Godot_v${{ inputs.tag_release }}_linux.x86_32.zip
             release/Godot_v${{ inputs.tag_release }}_win64.exe.zip
             release/Godot_v${{ inputs.tag_release }}_windows_arm64.exe.zip
             release/Godot_v${{ inputs.tag_release }}_macos.universal.zip
             release/Godot_v${{ inputs.tag_release }}_export_templates.tpz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
