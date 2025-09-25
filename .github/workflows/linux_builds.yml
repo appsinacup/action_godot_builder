@@ -47,6 +47,7 @@ jobs:
           - name: Editor (target=editor arch=x86_64)
             target: editor
             scons-flags: arch=x86_64
+            build-mono: false
           
           # TODO re-enable these
           #- name: Editor (target=editor arch=x86_32)
@@ -56,18 +57,31 @@ jobs:
           - name: Template (target=template_release, arch=x86_64)
             target: template_release
             scons-flags: arch=x86_64
+            build-mono: false
           
           - name: Template (target=template_debug, arch=x86_64)
             target: template_debug
             scons-flags: arch=x86_64
+            build-mono: false
 
-          #- name: Template (target=template_release, arch=x86_32)
-          #  target: template_release
-          #  scons-flags: arch=x86_32
-          
-          #- name: Template (target=template_debug, arch=x86_32)
-          #  target: template_debug
-          #  scons-flags: arch=x86_32
+          - name: Editor Mono (target=editor arch=x86_64)
+            target: editor
+            scons-flags: arch=x86_64 module_mono_enabled=yes
+            build-mono: true
+            scons-mono-flags: mono_glue=yes
+
+          - name: Template Mono (target=template_release arch=x86_64)
+            target: template_release
+            scons-flags: arch=x86_64 module_mono_enabled=yes
+            build-mono: true
+            scons-mono-flags: mono_glue=yes
+
+          - name: Template Mono (target=template_debug arch=x86_64)
+            target: template_debug
+            scons-flags: arch=x86_64 module_mono_enabled=yes
+            build-mono: true
+            scons-mono-flags: mono_glue=yes
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -100,6 +114,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc-multilib g++-multilib libc6-dev-i386
 
+      - name: Install Mono toolchain
+        if: matrix.build-mono
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mono-devel nuget
+
+      - name: Setup .NET SDK
+        if: matrix.build-mono
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
       - name: Free disk space on runner
         run: |
           echo "Disk usage before:" && df -h
@@ -124,11 +150,24 @@ jobs:
           python-version: 3.8
           scons-version: 4.0
 
+      - name: Mono compilation (pre-glue)
+        if: matrix.build-mono
+        uses: ./.github/actions/godot-build
+        with:
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.module_flags }} mono_glue=no
+          platform: linuxbsd
+          target: editor
+
+      - name: Generate C# glue
+        if: matrix.build-mono
+        run: |
+          ./bin/godot.linuxbsd.editor.x86_64.mono --headless --generate-mono-glue ./modules/mono/glue
+
       - name: Compilation (Editor)
         if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ matrix.scons-mono-flags }} ${{ inputs.lto }} ${{ inputs.module_flags }}
           platform: linuxbsd
           target: ${{ matrix.target }}
       
@@ -136,7 +175,7 @@ jobs:
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ matrix.scons-mono-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
           platform: linuxbsd
           target: ${{ matrix.target }}
 
@@ -156,3 +195,9 @@ jobs:
         with:
           name: linux-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
           path: bin
+
+      - name: Build .NET solutions
+        if: matrix.build-mono
+        run: |
+          dotnet --info
+          ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=linuxbsd --werror
