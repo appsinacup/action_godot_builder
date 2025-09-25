@@ -47,6 +47,7 @@ jobs:
           - name: Editor (target=editor arch=x86_64)
             target: editor
             scons-flags: arch=x86_64
+            scons-mono-flags: ''
             build-mono: false
           
           # TODO re-enable these
@@ -57,11 +58,13 @@ jobs:
           - name: Template (target=template_release, arch=x86_64)
             target: template_release
             scons-flags: arch=x86_64
+            scons-mono-flags: ''
             build-mono: false
           
           - name: Template (target=template_debug, arch=x86_64)
             target: template_debug
             scons-flags: arch=x86_64
+            scons-mono-flags: ''
             build-mono: false
 
           - name: Editor Mono (target=editor arch=x86_64)
@@ -190,14 +193,14 @@ jobs:
           strip bin/godot.*
           chmod +x bin/godot.*
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
-          path: bin
-
       - name: Build .NET solutions
         if: matrix.build-mono
         run: |
           dotnet --info
           ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=linuxbsd --werror
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
+          path: bin
