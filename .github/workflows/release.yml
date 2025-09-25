@@ -153,6 +153,7 @@ jobs:
       - name: Package per-platform editors and templates
         run: |
           mkdir -p release/templates
+          mkdir -p release/templates_mono
           set -e
           VERSION=${{ inputs.tag_release }}
           VERSION_CLEAN=${VERSION//-/.}
@@ -160,6 +161,7 @@ jobs:
           # Editors. Rename them
           mv bin/godot.linuxbsd.editor.x86_64 bin/Godot_v${VERSION}_linux.x86_64
           #mv bin/godot.linuxbsd.editor.x86_32 bin/Godot_v${VERSION}_linux.x86_32
+          mv bin/godot.linuxbsd.editor.x86_64.mono bin/Godot_v${VERSION}_linux_mono.x86_64
           mv bin/godot.windows.editor.x86_64.exe bin/Godot_v${VERSION}_win64.exe
           mv bin/godot.windows.editor.arm64.exe bin/Godot_v${VERSION}_windows_arm64.exe
           echo "Editors renamed to:"
@@ -168,6 +170,7 @@ jobs:
           cd bin
           zip -q -9 -r ../release/Godot_v${VERSION}_linux.x86_64.zip Godot_v${VERSION}_linux.x86_64
           #zip -q -9 -r ../release/Godot_v${VERSION}_linux.x86_32.zip Godot_v${VERSION}_linux.x86_32
+          zip -q -9 -r ../release_mono/Godot_v${VERSION}_linux_mono.x86_64.zip Godot_v${VERSION}_linux_mono.x86_64
           zip -q -9 -r ../release/Godot_v${VERSION}_win64.exe.zip Godot_v${VERSION}_win64.exe
           zip -q -9 -r ../release/Godot_v${VERSION}_windows_arm64.exe.zip Godot_v${VERSION}_windows_arm64.exe
           zip -q -9 -r ../release/Godot_v${VERSION}_macos.universal.zip Godot.app
@@ -192,6 +195,10 @@ jobs:
           cp bin/godot.windows.template_debug.arm64.console.exe "release/templates/windows_debug_arm64_console.exe"
           cp bin/godot.windows.template_release.arm64.console.exe "release/templates/windows_release_arm64_console.exe"
 
+          cp bin/godot.linuxbsd.template_debug.x86_64.mono "release/templates_mono/linux_debug.x86_64"
+          cp bin/godot.linuxbsd.template_release.x86_64.mono "release/templates_mono/linux_release.x86_64"
+          cp -R bin/GodotSharp "release/templates_mono/GodotSharp"
+
           cp bin/macos.zip "release/templates/macos.zip"
           cp bin/godot_ios.zip "release/templates/ios.zip"
 
@@ -214,6 +221,7 @@ jobs:
           ls -R release/templates
           cd release
           zip -r Godot_v${VERSION}_export_templates.tpz templates
+          zip -r Godot_v${VERSION}_mono_export_templates.tpz templates_mono
       
       - name: List release directory
         run: ls -R release
@@ -243,7 +251,9 @@ jobs:
             - Build Branch: ${{ inputs.base-branch }}
           files: |
             release/Godot_v${{ inputs.tag_release }}_linux.x86_64.zip
+            release/Godot_v${{ inputs.tag_release }}_linux_mono.x86_64.zip
             release/Godot_v${{ inputs.tag_release }}_win64.exe.zip
             release/Godot_v${{ inputs.tag_release }}_windows_arm64.exe.zip
             release/Godot_v${{ inputs.tag_release }}_macos.universal.zip
             release/Godot_v${{ inputs.tag_release }}_export_templates.tpz
+            release/Godot_v${{ inputs.tag_release }}_mono_export_templates.tpz
