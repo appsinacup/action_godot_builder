@@ -17,7 +17,7 @@ on:
       tag_release:
         description: 'tag to use for releasing the build'
         type: string
-        default: '4.5.beta'
+        default: '4.5.stable'
       module_flags:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
         type: string
