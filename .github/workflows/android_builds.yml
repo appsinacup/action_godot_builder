@@ -124,7 +124,7 @@ jobs:
         if: matrix.build-mono
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} module_mono_enabled=yes mono_glue=no ${{ inputs.lto }} ${{ inputs.module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} module_mono_enabled=yes mono_glue=no ${{ inputs.module_flags }}
           platform: linuxbsd
           target: editor
 
