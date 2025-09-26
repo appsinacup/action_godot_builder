@@ -129,25 +129,6 @@ jobs:
       - name: Setup Python and SCons
         uses: ./.github/actions/godot-deps
 
-      - name: Setup .NET SDK
-        if: matrix.build-mono
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '6.0.x'
-
-      - name: Mono tools build (pre-glue)
-        if: matrix.build-mono
-        uses: ./.github/actions/godot-build
-        with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 module_mono_enabled=yes mono_glue=no ${{ inputs.lto }} ${{ inputs.module_flags }}
-          platform: windows
-          target: editor
-
-      - name: Generate C# glue
-        if: matrix.build-mono
-        run: |
-          .\bin\godot.windows.editor.x86_64.mono.exe --headless --generate-mono-glue .\modules\mono\glue
-
       - name: Download Direct3D 12 SDK components
         run: python ./misc/scripts/install_d3d12_sdk_windows.py
 
@@ -214,6 +195,29 @@ jobs:
       
       - name: Extract pre-built NIR
         run: Expand-Archive -Force nir/nir.zip ${{ github.workspace }}/
+
+# Mono
+
+      - name: Setup .NET SDK
+        if: matrix.build-mono
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Mono tools build (pre-glue)
+        if: matrix.build-mono
+        uses: ./.github/actions/godot-build
+        with:
+          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 module_mono_enabled=yes mono_glue=no ${{ inputs.lto }} ${{ inputs.module_flags }}
+          platform: windows
+          target: editor
+
+      - name: Generate C# glue
+        if: matrix.build-mono
+        run: |
+          .\bin\godot.windows.editor.x86_64.mono.exe --headless --generate-mono-glue .\modules\mono\glue
+
+# Compilation
 
       - name: Compilation (editor)
         if: matrix.target == 'editor'

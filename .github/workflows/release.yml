@@ -119,6 +119,26 @@ jobs:
 
           xcrun stapler staple bin/Godot.app
 
+      - name: Mac Create Mono Editor Bundle
+        if: ${{ env.BUILD_CERTIFICATE_BASE64 != '' }}
+        run: |
+          set -e
+          if [ ! -f bin/godot.macos.editor.mono.universal ]; then
+            echo "Mono macOS editor binary not found, skipping."
+            exit 0
+          fi
+          cp -r misc/dist/macos_tools.app ./bin/Godot_mono.app
+          mkdir -p bin/Godot_mono.app/Contents/MacOS
+          cp bin/godot.macos.editor.mono.universal bin/Godot_mono.app/Contents/MacOS/Godot
+          chmod +x bin/Godot_mono.app/Contents/MacOS/Godot
+          codesign --force --timestamp --options=runtime --entitlements misc/dist/macos/editor.entitlements --sign "${{ env.APPLE_SIGNING_IDENTITY }}" bin/Godot_mono.app
+
+          zip -q -9 -r "Godot_mono.universal.zip" bin/Godot_mono.app
+
+          /Applications/Xcode.app/Contents/Developer/usr/bin/notarytool submit Godot_mono.universal.zip --wait --keychain-profile "AppleID"
+
+          xcrun stapler staple bin/Godot_mono.app
+
       - name: Mac Create Editor Bundle (w/o Signing)
         if: ${{ env.BUILD_CERTIFICATE_BASE64 == '' }}
         run: |
@@ -128,6 +148,20 @@ jobs:
           chmod +x bin/Godot.app/Contents/MacOS/Godot
           codesign --force --timestamp --options=runtime --entitlements misc/dist/macos/editor.entitlements -s - bin/Godot.app
 
+      - name: Mac Create Mono Editor Bundle (w/o Signing)
+        if: ${{ env.BUILD_CERTIFICATE_BASE64 == '' }}
+        run: |
+          set -e
+          if [ ! -f bin/godot.macos.editor.mono.universal ]; then
+            echo "Mono macOS editor binary not found, skipping."
+            exit 0
+          fi
+          cp -r misc/dist/macos_tools.app ./bin/Godot_mono.app
+          mkdir -p bin/Godot_mono.app/Contents/MacOS
+          cp bin/godot.macos.editor.mono.universal bin/Godot_mono.app/Contents/MacOS/Godot
+          chmod +x bin/Godot_mono.app/Contents/MacOS/Godot
+          codesign --force --timestamp --options=runtime --entitlements misc/dist/macos/editor.entitlements -s - bin/Godot_mono.app
+
       - name: Mac Create Template Bundle
         run: |
           cp -r misc/dist/macos_template.app ./bin
@@ -136,6 +170,20 @@ jobs:
           cp bin/godot.macos.template_debug.universal bin/macos_template.app/Contents/MacOS/godot_macos_debug.universal
           chmod +x bin/macos_template.app/Contents/MacOS/godot_macos*
           cd bin && zip -q -9 -r macos.zip macos_template.app && cd ..
+
+      - name: Mac Create Template Bundle (Mono)
+        run: |
+          set -e
+          if [ ! -f bin/godot.macos.template_release.mono.universal ] || [ ! -f bin/godot.macos.template_debug.mono.universal ]; then
+            echo "Mono macOS template binaries not found, skipping."
+            exit 0
+          fi
+          cp -r misc/dist/macos_template.app ./bin/macos_template_mono.app
+          mkdir -p bin/macos_template_mono.app/Contents/MacOS
+          cp bin/godot.macos.template_release.mono.universal bin/macos_template_mono.app/Contents/MacOS/godot_macos_release.universal
+          cp bin/godot.macos.template_debug.mono.universal bin/macos_template_mono.app/Contents/MacOS/godot_macos_debug.universal
+          chmod +x bin/macos_template_mono.app/Contents/MacOS/godot_macos*
+          cd bin && zip -q -9 -r macos_mono.zip macos_template_mono.app && cd ..
 
       - name: Assemble Android sources (debug + release) into one zip
         run: |
@@ -152,76 +200,245 @@ jobs:
 
       - name: Package per-platform editors and templates
         run: |
-          mkdir -p release/templates
-          mkdir -p release/templates_mono
           set -e
+          mkdir -p release release/templates release/templates_mono
           VERSION=${{ inputs.tag_release }}
           VERSION_CLEAN=${VERSION//-/.}
-          
-          # Editors. Rename them
-          mv bin/godot.linuxbsd.editor.x86_64 bin/Godot_v${VERSION}_linux.x86_64
-          #mv bin/godot.linuxbsd.editor.x86_32 bin/Godot_v${VERSION}_linux.x86_32
-          mv bin/godot.linuxbsd.editor.x86_64.mono bin/Godot_v${VERSION}_linux_mono.x86_64
-          mv bin/godot.windows.editor.x86_64.exe bin/Godot_v${VERSION}_win64.exe
-          mv bin/godot.windows.editor.arm64.exe bin/Godot_v${VERSION}_windows_arm64.exe
+
+          # Rename editors for packaging
+          if [ -f bin/godot.linuxbsd.editor.x86_64 ]; then
+            mv bin/godot.linuxbsd.editor.x86_64 bin/Godot_v${VERSION}_linux.x86_64
+          fi
+          if [ -f bin/godot.linuxbsd.editor.x86_64.mono ]; then
+            mv bin/godot.linuxbsd.editor.x86_64.mono bin/Godot_v${VERSION}_linux_mono.x86_64
+          fi
+          if [ -f bin/godot.windows.editor.x86_64.exe ]; then
+            mv bin/godot.windows.editor.x86_64.exe bin/Godot_v${VERSION}_win64.exe
+          fi
+          if [ -f bin/godot.windows.editor.x86_64.mono.exe ]; then
+            mv bin/godot.windows.editor.x86_64.mono.exe bin/Godot_v${VERSION}_win64_mono.exe
+          fi
+          if [ -f bin/godot.windows.editor.arm64.exe ]; then
+            mv bin/godot.windows.editor.arm64.exe bin/Godot_v${VERSION}_windows_arm64.exe
+          fi
+          if [ -f bin/godot.windows.editor.arm64.mono.exe ]; then
+            mv bin/godot.windows.editor.arm64.mono.exe bin/Godot_v${VERSION}_windows_arm64_mono.exe
+          fi
+
           echo "Editors renamed to:"
           ls bin
-          # Archive them
+
           cd bin
-          zip -q -9 -r ../release/Godot_v${VERSION}_linux.x86_64.zip Godot_v${VERSION}_linux.x86_64
-          #zip -q -9 -r ../release/Godot_v${VERSION}_linux.x86_32.zip Godot_v${VERSION}_linux.x86_32
-          zip -q -9 -r ../release_mono/Godot_v${VERSION}_linux_mono.x86_64.zip Godot_v${VERSION}_linux_mono.x86_64
-          zip -q -9 -r ../release/Godot_v${VERSION}_win64.exe.zip Godot_v${VERSION}_win64.exe
-          zip -q -9 -r ../release/Godot_v${VERSION}_windows_arm64.exe.zip Godot_v${VERSION}_windows_arm64.exe
-          zip -q -9 -r ../release/Godot_v${VERSION}_macos.universal.zip Godot.app
+          if [ -f Godot_v${VERSION}_linux.x86_64 ]; then
+            zip -q -9 -r ../release/Godot_v${VERSION}_linux.x86_64.zip Godot_v${VERSION}_linux.x86_64
+          fi
+          if [ -f Godot_v${VERSION}_linux_mono.x86_64 ]; then
+            zip -q -9 -r ../release/Godot_v${VERSION}_linux_mono.x86_64.zip Godot_v${VERSION}_linux_mono.x86_64
+          fi
+          if [ -f Godot_v${VERSION}_win64.exe ]; then
+            zip -q -9 -r ../release/Godot_v${VERSION}_win64.exe.zip Godot_v${VERSION}_win64.exe
+          fi
+          if [ -f Godot_v${VERSION}_win64_mono.exe ]; then
+            zip -q -9 -r ../release/Godot_v${VERSION}_win64_mono.exe.zip Godot_v${VERSION}_win64_mono.exe
+          fi
+          if [ -f Godot_v${VERSION}_windows_arm64.exe ]; then
+            zip -q -9 -r ../release/Godot_v${VERSION}_windows_arm64.exe.zip Godot_v${VERSION}_windows_arm64.exe
+          fi
+          if [ -f Godot_v${VERSION}_windows_arm64_mono.exe ]; then
+            zip -q -9 -r ../release/Godot_v${VERSION}_windows_arm64_mono.exe.zip Godot_v${VERSION}_windows_arm64_mono.exe
+          fi
+          if [ -d Godot.app ]; then
+            zip -q -9 -r ../release/Godot_v${VERSION}_macos.universal.zip Godot.app
+          fi
+          if [ -d Godot_mono.app ]; then
+            zip -q -9 -r ../release/Godot_v${VERSION}_macos.universal.mono.zip Godot_mono.app
+          fi
           cd ..
-          # Templates
-          cp bin/godot.linuxbsd.template_debug.x86_64 "release/templates/linux_debug.x86_64"
-          cp bin/godot.linuxbsd.template_release.x86_64 "release/templates/linux_release.x86_64"
-          #cp bin/godot.linuxbsd.template_debug.x86_32 "release/templates/linux_debug.x86_32"
-          #cp bin/godot.linuxbsd.template_release.x86_32 "release/templates/linux_release.x86_32"
 
-          cp bin/godot.windows.template_debug.x86_64.exe "release/templates/windows_debug_x86_64.exe"
-          cp bin/godot.windows.template_release.x86_64.exe "release/templates/windows_release_x86_64.exe"
-          cp bin/godot.windows.template_debug.x86_32.exe "release/templates/windows_debug_x86_32.exe"
-          cp bin/godot.windows.template_release.x86_32.exe "release/templates/windows_release_x86_32.exe"
-          cp bin/godot.windows.template_debug.arm64.exe "release/templates/windows_debug_arm64.exe"
-          cp bin/godot.windows.template_release.arm64.exe "release/templates/windows_release_arm64.exe"
+          # Templates (non-mono)
+          if [ -f bin/godot.linuxbsd.template_debug.x86_64 ]; then
+            cp bin/godot.linuxbsd.template_debug.x86_64 "release/templates/linux_debug.x86_64"
+          fi
+          if [ -f bin/godot.linuxbsd.template_release.x86_64 ]; then
+            cp bin/godot.linuxbsd.template_release.x86_64 "release/templates/linux_release.x86_64"
+          fi
+          if [ -f bin/godot.windows.template_debug.x86_64.exe ]; then
+            cp bin/godot.windows.template_debug.x86_64.exe "release/templates/windows_debug_x86_64.exe"
+          fi
+          if [ -f bin/godot.windows.template_release.x86_64.exe ]; then
+            cp bin/godot.windows.template_release.x86_64.exe "release/templates/windows_release_x86_64.exe"
+          fi
+          if [ -f bin/godot.windows.template_debug.x86_32.exe ]; then
+            cp bin/godot.windows.template_debug.x86_32.exe "release/templates/windows_debug_x86_32.exe"
+          fi
+          if [ -f bin/godot.windows.template_release.x86_32.exe ]; then
+            cp bin/godot.windows.template_release.x86_32.exe "release/templates/windows_release_x86_32.exe"
+          fi
+          if [ -f bin/godot.windows.template_debug.arm64.exe ]; then
+            cp bin/godot.windows.template_debug.arm64.exe "release/templates/windows_debug_arm64.exe"
+          fi
+          if [ -f bin/godot.windows.template_release.arm64.exe ]; then
+            cp bin/godot.windows.template_release.arm64.exe "release/templates/windows_release_arm64.exe"
+          fi
+          if [ -f bin/godot.windows.template_debug.x86_64.console.exe ]; then
+            cp bin/godot.windows.template_debug.x86_64.console.exe "release/templates/windows_debug_x86_64_console.exe"
+          fi
+          if [ -f bin/godot.windows.template_release.x86_64.console.exe ]; then
+            cp bin/godot.windows.template_release.x86_64.console.exe "release/templates/windows_release_x86_64_console.exe"
+          fi
+          if [ -f bin/godot.windows.template_debug.x86_32.console.exe ]; then
+            cp bin/godot.windows.template_debug.x86_32.console.exe "release/templates/windows_debug_x86_32_console.exe"
+          fi
+          if [ -f bin/godot.windows.template_release.x86_32.console.exe ]; then
+            cp bin/godot.windows.template_release.x86_32.console.exe "release/templates/windows_release_x86_32_console.exe"
+          fi
+          if [ -f bin/godot.windows.template_debug.arm64.console.exe ]; then
+            cp bin/godot.windows.template_debug.arm64.console.exe "release/templates/windows_debug_arm64_console.exe"
+          fi
+          if [ -f bin/godot.windows.template_release.arm64.console.exe ]; then
+            cp bin/godot.windows.template_release.arm64.console.exe "release/templates/windows_release_arm64_console.exe"
+          fi
 
-          cp bin/godot.windows.template_debug.x86_64.console.exe "release/templates/windows_debug_x86_64_console.exe"
-          cp bin/godot.windows.template_release.x86_64.console.exe "release/templates/windows_release_x86_64_console.exe"
-          cp bin/godot.windows.template_debug.x86_32.console.exe "release/templates/windows_debug_x86_32_console.exe"
-          cp bin/godot.windows.template_release.x86_32.console.exe "release/templates/windows_release_x86_32_console.exe"
-          cp bin/godot.windows.template_debug.arm64.console.exe "release/templates/windows_debug_arm64_console.exe"
-          cp bin/godot.windows.template_release.arm64.console.exe "release/templates/windows_release_arm64_console.exe"
+          if [ -f bin/macos.zip ]; then
+            cp bin/macos.zip "release/templates/macos.zip"
+          fi
+          if [ -f bin/godot_ios.zip ]; then
+            cp bin/godot_ios.zip "release/templates/ios.zip"
+          fi
+          if [ -f bin/android_source.zip ]; then
+            cp -f bin/android_source.zip "release/templates/android_source.zip"
+          fi
+          if [ -f bin/android_release.apk ]; then
+            cp -f bin/android_release.apk "release/templates/android_release.apk"
+          fi
+          if [ -f bin/android_debug.apk ]; then
+            cp -f bin/android_debug.apk "release/templates/android_debug.apk"
+          fi
 
-          cp bin/godot.linuxbsd.template_debug.x86_64.mono "release/templates_mono/linux_debug.x86_64"
-          cp bin/godot.linuxbsd.template_release.x86_64.mono "release/templates_mono/linux_release.x86_64"
-          cp -R bin/GodotSharp "release/templates_mono/GodotSharp"
+          if [ -f bin/godot.web.template_release.wasm32.zip ]; then
+            cp bin/godot.web.template_release.wasm32.zip "release/templates/web_release.zip"
+          fi
+          if [ -f bin/godot.web.template_debug.wasm32.zip ]; then
+            cp bin/godot.web.template_debug.wasm32.zip "release/templates/web_debug.zip"
+          fi
+          if [ -f bin/godot.web.template_release.wasm32.nothreads.zip ]; then
+            cp bin/godot.web.template_release.wasm32.nothreads.zip "release/templates/web_nothreads_release.zip"
+          fi
+          if [ -f bin/godot.web.template_debug.wasm32.nothreads.zip ]; then
+            cp bin/godot.web.template_debug.wasm32.nothreads.zip "release/templates/web_nothreads_debug.zip"
+          fi
+          if [ -f bin/godot.web.template_release.wasm32.dlink.zip ]; then
+            cp bin/godot.web.template_release.wasm32.dlink.zip "release/templates/web_dlink_release.zip"
+          fi
+          if [ -f bin/godot.web.template_debug.wasm32.dlink.zip ]; then
+            cp bin/godot.web.template_debug.wasm32.dlink.zip "release/templates/web_dlink_debug.zip"
+          fi
+          if [ -f bin/godot.web.template_release.wasm32.nothreads.dlink.zip ]; then
+            cp bin/godot.web.template_release.wasm32.nothreads.dlink.zip "release/templates/web_dlink_nothreads_release.zip"
+          fi
+          if [ -f bin/godot.web.template_debug.wasm32.nothreads.dlink.zip ]; then
+            cp bin/godot.web.template_debug.wasm32.nothreads.dlink.zip "release/templates/web_dlink_nothreads_debug.zip"
+          fi
 
-          cp bin/macos.zip "release/templates/macos.zip"
-          cp bin/godot_ios.zip "release/templates/ios.zip"
+          # Templates (mono variants with fallbacks)
+          if [ -f bin/godot.linuxbsd.template_debug.x86_64.mono ]; then
+            cp bin/godot.linuxbsd.template_debug.x86_64.mono "release/templates_mono/linux_debug.x86_64"
+          elif [ -f bin/godot.linuxbsd.template_debug.x86_64 ]; then
+            cp bin/godot.linuxbsd.template_debug.x86_64 "release/templates_mono/linux_debug.x86_64"
+          fi
+          if [ -f bin/godot.linuxbsd.template_release.x86_64.mono ]; then
+            cp bin/godot.linuxbsd.template_release.x86_64.mono "release/templates_mono/linux_release.x86_64"
+          elif [ -f bin/godot.linuxbsd.template_release.x86_64 ]; then
+            cp bin/godot.linuxbsd.template_release.x86_64 "release/templates_mono/linux_release.x86_64"
+          fi
 
-          cp -f bin/android_source.zip "release/templates/"
-          cp -f bin/android_release.apk "release/templates/"
-          cp -f bin/android_debug.apk "release/templates/"
+          if [ -f bin/godot.windows.template_debug.x86_64.mono.exe ]; then
+            cp bin/godot.windows.template_debug.x86_64.mono.exe "release/templates_mono/windows_debug_x86_64.exe"
+          elif [ -f bin/godot.windows.template_debug.x86_64.exe ]; then
+            cp bin/godot.windows.template_debug.x86_64.exe "release/templates_mono/windows_debug_x86_64.exe"
+          fi
+          if [ -f bin/godot.windows.template_release.x86_64.mono.exe ]; then
+            cp bin/godot.windows.template_release.x86_64.mono.exe "release/templates_mono/windows_release_x86_64.exe"
+          elif [ -f bin/godot.windows.template_release.x86_64.exe ]; then
+            cp bin/godot.windows.template_release.x86_64.exe "release/templates_mono/windows_release_x86_64.exe"
+          fi
+          if [ -f bin/godot.windows.template_debug.x86_64.mono.console.exe ]; then
+            cp bin/godot.windows.template_debug.x86_64.mono.console.exe "release/templates_mono/windows_debug_x86_64_console.exe"
+          elif [ -f bin/godot.windows.template_debug.x86_64.console.exe ]; then
+            cp bin/godot.windows.template_debug.x86_64.console.exe "release/templates_mono/windows_debug_x86_64_console.exe"
+          fi
+          if [ -f bin/godot.windows.template_release.x86_64.mono.console.exe ]; then
+            cp bin/godot.windows.template_release.x86_64.mono.console.exe "release/templates_mono/windows_release_x86_64_console.exe"
+          elif [ -f bin/godot.windows.template_release.x86_64.console.exe ]; then
+            cp bin/godot.windows.template_release.x86_64.console.exe "release/templates_mono/windows_release_x86_64_console.exe"
+          fi
 
-          cp bin/godot.web.template_release.wasm32.zip "release/templates/web_release.zip"
-          cp bin/godot.web.template_debug.wasm32.zip "release/templates/web_debug.zip"
-          cp bin/godot.web.template_release.wasm32.nothreads.zip "release/templates/web_nothreads_release.zip"
-          cp bin/godot.web.template_debug.wasm32.nothreads.zip "release/templates/web_nothreads_debug.zip"
-          cp bin/godot.web.template_release.wasm32.dlink.zip "release/templates/web_dlink_release.zip"
-          cp bin/godot.web.template_debug.wasm32.dlink.zip "release/templates/web_dlink_debug.zip"
-          cp bin/godot.web.template_release.wasm32.nothreads.dlink.zip "release/templates/web_dlink_nothreads_release.zip"
-          cp bin/godot.web.template_debug.wasm32.nothreads.dlink.zip "release/templates/web_dlink_nothreads_debug.zip"
+          if [ -f bin/macos_mono.zip ]; then
+            cp bin/macos_mono.zip "release/templates_mono/macos.zip"
+          elif [ -f bin/macos.zip ]; then
+            cp bin/macos.zip "release/templates_mono/macos.zip"
+          fi
+          if [ -f bin/godot_ios_mono.zip ]; then
+            cp bin/godot_ios_mono.zip "release/templates_mono/ios.zip"
+          elif [ -f bin/godot_ios.zip ]; then
+            cp bin/godot_ios.zip "release/templates_mono/ios.zip"
+          fi
 
-          echo "${VERSION_CLEAN}" > release/templates/version.txt
+          if [ -f bin/android_source.mono.zip ]; then
+            cp -f bin/android_source.mono.zip "release/templates_mono/android_source.zip"
+          elif [ -f bin/android_source.zip ]; then
+            cp -f bin/android_source.zip "release/templates_mono/android_source.zip"
+          fi
+          if [ -f bin/android_release_mono.apk ]; then
+            cp -f bin/android_release_mono.apk "release/templates_mono/android_release.apk"
+          elif [ -f bin/android_release.apk ]; then
+            cp -f bin/android_release.apk "release/templates_mono/android_release.apk"
+          fi
+          if [ -f bin/android_debug_mono.apk ]; then
+            cp -f bin/android_debug_mono.apk "release/templates_mono/android_debug.apk"
+          elif [ -f bin/android_debug.apk ]; then
+            cp -f bin/android_debug.apk "release/templates_mono/android_debug.apk"
+          fi
 
-          # Create export templates .tpz
+          if [ -f bin/godot.web.template_release.wasm32.zip ]; then
+            cp bin/godot.web.template_release.wasm32.zip "release/templates_mono/web_release.zip"
+          fi
+          if [ -f bin/godot.web.template_debug.wasm32.zip ]; then
+            cp bin/godot.web.template_debug.wasm32.zip "release/templates_mono/web_debug.zip"
+          fi
+          if [ -f bin/godot.web.template_release.wasm32.nothreads.zip ]; then
+            cp bin/godot.web.template_release.wasm32.nothreads.zip "release/templates_mono/web_nothreads_release.zip"
+          fi
+          if [ -f bin/godot.web.template_debug.wasm32.nothreads.zip ]; then
+            cp bin/godot.web.template_debug.wasm32.nothreads.zip "release/templates_mono/web_nothreads_debug.zip"
+          fi
+          if [ -f bin/godot.web.template_release.wasm32.dlink.zip ]; then
+            cp bin/godot.web.template_release.wasm32.dlink.zip "release/templates_mono/web_dlink_release.zip"
+          fi
+          if [ -f bin/godot.web.template_debug.wasm32.dlink.zip ]; then
+            cp bin/godot.web.template_debug.wasm32.dlink.zip "release/templates_mono/web_dlink_debug.zip"
+          fi
+          if [ -f bin/godot.web.template_release.wasm32.nothreads.dlink.zip ]; then
+            cp bin/godot.web.template_release.wasm32.nothreads.dlink.zip "release/templates_mono/web_dlink_nothreads_release.zip"
+          fi
+          if [ -f bin/godot.web.template_debug.wasm32.nothreads.dlink.zip ]; then
+            cp bin/godot.web.template_debug.wasm32.nothreads.dlink.zip "release/templates_mono/web_dlink_nothreads_debug.zip"
+          fi
+
+          if [ -d bin/GodotSharp ]; then
+            rm -rf release/templates_mono/GodotSharp
+            cp -R bin/GodotSharp release/templates_mono/GodotSharp
+          fi
+
+          printf "%s" "${VERSION_CLEAN}" > release/templates/version.txt
+          printf "%s" "${VERSION_CLEAN}" > release/templates_mono/version.txt
+
           ls -R release/templates
+          ls -R release/templates_mono
+
           cd release
-          zip -r Godot_v${VERSION}_export_templates.tpz templates
-          zip -r Godot_v${VERSION}_mono_export_templates.tpz templates_mono
+          zip -q -r Godot_v${VERSION}_export_templates.tpz templates
+          zip -q -r Godot_v${VERSION}_mono_export_templates.tpz templates_mono
       
       - name: List release directory
         run: ls -R release
@@ -253,7 +470,9 @@ jobs:
             release/Godot_v${{ inputs.tag_release }}_linux.x86_64.zip
             release/Godot_v${{ inputs.tag_release }}_linux_mono.x86_64.zip
             release/Godot_v${{ inputs.tag_release }}_win64.exe.zip
+            release/Godot_v${{ inputs.tag_release }}_win64_mono.exe.zip
             release/Godot_v${{ inputs.tag_release }}_windows_arm64.exe.zip
             release/Godot_v${{ inputs.tag_release }}_macos.universal.zip
+            release/Godot_v${{ inputs.tag_release }}_macos.universal.mono.zip
             release/Godot_v${{ inputs.tag_release }}_export_templates.tpz
             release/Godot_v${{ inputs.tag_release }}_mono_export_templates.tpz
