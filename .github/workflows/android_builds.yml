@@ -102,8 +102,12 @@ jobs:
       - name: Install NuGet CLI
         if: matrix.build-mono
         run: |
-          dotnet tool install --global nuget.commandline --version 6.9.1 || dotnet tool update --global nuget.commandline --version 6.9.1
-          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+          set -e
+          mkdir -p "$HOME/.local/bin"
+          curl -sSL https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -o "$HOME/.local/bin/nuget.exe"
+          printf '#!/usr/bin/env bash\nexec mono "$HOME/.local/bin/nuget.exe" "$@"\n' > "$HOME/.local/bin/nuget"
+          chmod +x "$HOME/.local/bin/nuget" "$HOME/.local/bin/nuget.exe"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Download pre-built Android Swappy Frame Pacing Library
         uses: dsaltares/fetch-gh-release-asset@1.1.2
