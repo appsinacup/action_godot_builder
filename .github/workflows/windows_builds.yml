@@ -45,34 +45,68 @@ jobs:
           - name: Editor (target=editor, arch=x86_64)
             target: editor
             scons-flags: arch=x86_64
+            build-mono: false
+            mono-flags: ''
 
           - name: Editor (target=editor, arch=arm64)
             target: editor
             scons-flags: arch=arm64
+            build-mono: false
+            mono-flags: ''
 
           - name: Template (target=template_release, arch=x86_64)
             target: template_release
             scons-flags: arch=x86_64
+            build-mono: false
+            mono-flags: ''
           
           - name: Template (target=template_release, arch=x86)
             target: template_release
             scons-flags: arch=x86
+            build-mono: false
+            mono-flags: ''
           
           - name: Template (target=template_release, arch=arm64)
             target: template_release
             scons-flags: arch=arm64
+            build-mono: false
+            mono-flags: ''
           
           - name: Template (target=template_debug, arch=x86_64)
             target: template_debug
             scons-flags: arch=x86_64
+            build-mono: false
+            mono-flags: ''
           
           - name: Template (target=template_debug, arch=x86)
             target: template_debug
             scons-flags: arch=x86
+            build-mono: false
+            mono-flags: ''
           
           - name: Template (target=template_debug, arch=arm64)
             target: template_debug
             scons-flags: arch=arm64
+            build-mono: false
+            mono-flags: ''
+
+          - name: Editor Mono (target=editor, arch=x86_64)
+            target: editor
+            scons-flags: arch=x86_64
+            build-mono: true
+            mono-flags: module_mono_enabled=yes mono_glue=yes
+
+          - name: Template Mono (target=template_release, arch=x86_64)
+            target: template_release
+            scons-flags: arch=x86_64
+            build-mono: true
+            mono-flags: module_mono_enabled=yes mono_glue=yes
+
+          - name: Template Mono (target=template_debug, arch=x86_64)
+            target: template_debug
+            scons-flags: arch=x86_64
+            build-mono: true
+            mono-flags: module_mono_enabled=yes mono_glue=yes
 
     steps:
       - name: Checkout
@@ -89,11 +123,30 @@ jobs:
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
-          cache-name: windows-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
+          cache-name: windows-${{ matrix.target }}${{ matrix.mono-flags }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
         continue-on-error: true
 
       - name: Setup Python and SCons
         uses: ./.github/actions/godot-deps
+
+      - name: Setup .NET SDK
+        if: matrix.build-mono
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Mono tools build (pre-glue)
+        if: matrix.build-mono
+        uses: ./.github/actions/godot-build
+        with:
+          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 module_mono_enabled=yes mono_glue=no ${{ inputs.lto }} ${{ inputs.module_flags }}
+          platform: windows
+          target: editor
+
+      - name: Generate C# glue
+        if: matrix.build-mono
+        run: |
+          .\bin\godot.windows.editor.x86_64.mono.exe --headless --generate-mono-glue .\modules\mono\glue
 
       - name: Download Direct3D 12 SDK components
         run: python ./misc/scripts/install_d3d12_sdk_windows.py
@@ -166,7 +219,7 @@ jobs:
         if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.module_flags }} ${{ matrix.mono-flags }}
           platform: windows
           target: ${{ matrix.target }}
 
@@ -174,15 +227,21 @@ jobs:
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }} ${{ matrix.mono-flags }}
           platform: windows
           target: ${{ matrix.target }}
 
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
-          cache-name: windows-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
+          cache-name: windows-${{ matrix.target }}${{ matrix.mono-flags }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
         continue-on-error: true
+
+      - name: Build .NET solutions
+        if: matrix.build-mono
+        run: |
+          dotnet --info
+          ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=windows --werror
 
       - name: Prepare artifact
         run: |
@@ -191,5 +250,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
+          name: windows-${{ matrix.target }}${{ matrix.mono-flags }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
           path: bin

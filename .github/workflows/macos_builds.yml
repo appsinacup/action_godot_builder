@@ -41,15 +41,32 @@ jobs:
         include:
           - name: Editor (target=editor)
             target: editor
-            scons-flags: ''
+            build-mono: false
+            scons-mono-flags: ''
 
           - name: Template (target=template_release)
             target: template_release
-            scons-flags: ''
+            build-mono: false
+            scons-mono-flags: ''
           
           - name: Template (target=template_debug)
             target: template_debug
-            scons-flags: ''
+            build-mono: false
+            scons-mono-flags: ''
+
+          - name: Editor Mono (target=editor)
+            target: editor
+            build-mono: true
+
+          - name: Template Mono (target=template_release)
+            target: template_release
+            build-mono: true
+            scons-mono-flags: module_mono_enabled=yes mono_glue=yes
+          
+          - name: Template Mono (target=template_debug)
+            target: template_debug
+            build-mono: true
+            scons-mono-flags: module_mono_enabled=yes mono_glue=yes
 
     steps:
       - name: Checkout
@@ -75,21 +92,44 @@ jobs:
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
-          cache-name: macos-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
+          cache-name: macos-${{ matrix.target }}-${{ matrix.scons-mono-flags }}-${{ inputs.lto }}
         continue-on-error: true
 
       - name: Setup Python and SCons
         uses: ./.github/actions/godot-deps
 
+      - name: Install Mono toolchain
+        if: matrix.build-mono
+        run: |
+          brew list mono || brew install mono
+
+      - name: Setup .NET SDK
+        if: matrix.build-mono
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
       - name: Setup Vulkan SDK
         run: |
           sh misc/scripts/install_vulkan_sdk_macos.sh
+
+      - name: Mono tools build (pre-glue)
+        if: matrix.build-mono
+        uses: ./.github/actions/godot-build
+        with:
+          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ inputs.lto }} ${{ inputs.module_flags }} module_mono_enabled=yes mono_glue=no
+          platform: macos
+          target: editor
+
+      - name: Generate C# glue
+        if: matrix.build-mono
+        run: ./bin/godot.macos.editor.x86_64.mono --headless --generate-mono-glue ./modules/mono/glue
 
       - name: Compilation (x86_64 editor)
         if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ inputs.lto }} ${{ inputs.module_flags }} ${{ matrix.scons-mono-flags }}
           platform: macos
           target: ${{ matrix.target }}
 
@@ -97,7 +137,7 @@ jobs:
         if: matrix.target == 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.lto }} ${{ inputs.module_flags }} ${{ matrix.scons-mono-flags }}
           platform: macos
           target: ${{ matrix.target }}
 
@@ -105,7 +145,7 @@ jobs:
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 ${{ inputs.lto }} ${{ inputs.template_module_flags }} ${{ matrix.scons-mono-flags }}
           platform: macos
           target: ${{ matrix.target }}
 
@@ -113,24 +153,34 @@ jobs:
         if: matrix.target != 'editor'
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ matrix.scons-flags }} ${{ inputs.lto }} ${{ inputs.template_module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.lto }} ${{ inputs.template_module_flags }} ${{ matrix.scons-mono-flags }}
           platform: macos
           target: ${{ matrix.target }}
 
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
-          cache-name: macos-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
+          cache-name: macos-${{ matrix.target }}-${{ matrix.scons-mono-flags }}-${{ inputs.lto }}
         continue-on-error: true
+
+      - name: Build .NET solutions
+        if: matrix.build-mono
+        run: |
+          dotnet --info
+          ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=macos --werror
 
       - name: Prepare artifact
         run: |
-          lipo -create ./bin/godot.macos.${{ matrix.target }}.x86_64 ./bin/godot.macos.${{ matrix.target }}.arm64 -output ./bin/godot.macos.${{ matrix.target }}.universal
+          mono_suffix=""
+          if [ "${{ matrix.build-mono }}" = 'true' ]; then
+            mono_suffix=".mono"
+          fi
+          lipo -create ./bin/godot.macos.${{ matrix.target }}.x86_64${mono_suffix} ./bin/godot.macos.${{ matrix.target }}.arm64${mono_suffix} -output ./bin/godot.macos.${{ matrix.target }}${mono_suffix}.universal
           strip bin/godot.*
           chmod +x bin/godot.*
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: macos-${{ matrix.target }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
+          name: macos-${{ matrix.target }}${{ matrix.scons-mono-flags }}-${{ inputs.lto }}
           path: bin
