@@ -122,12 +122,8 @@ jobs:
       - name: Mac Create Mono Editor Bundle
         if: ${{ env.BUILD_CERTIFICATE_BASE64 != '' }}
         run: |
-          set -e
-          if [ ! -f bin/godot.macos.editor.mono.universal ]; then
-            echo "Mono macOS editor binary not found, skipping."
-            exit 0
-          fi
           cp -r misc/dist/macos_tools.app ./bin/Godot_mono.app
+          cp -r bin/GodotSharp bin/Godot_mono.app/Contents/Resources
           mkdir -p bin/Godot_mono.app/Contents/MacOS
           cp bin/godot.macos.editor.mono.universal bin/Godot_mono.app/Contents/MacOS/Godot
           chmod +x bin/Godot_mono.app/Contents/MacOS/Godot
