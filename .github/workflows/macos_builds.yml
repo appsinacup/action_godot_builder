@@ -57,17 +57,17 @@ jobs:
           - name: Editor Mono (target=editor)
             target: editor
             build-mono: true
-            scons-mono-flags: module_mono_enabled=yes mono_glue=yes
+            scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
           - name: Template Mono (target=template_release)
             target: template_release
             build-mono: true
-            scons-mono-flags: module_mono_enabled=yes mono_glue=yes
+            scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
           
           - name: Template Mono (target=template_debug)
             target: template_debug
             build-mono: true
-            scons-mono-flags: module_mono_enabled=yes mono_glue=yes
+            scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
     steps:
       - name: Checkout

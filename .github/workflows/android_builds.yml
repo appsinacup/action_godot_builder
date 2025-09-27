@@ -53,12 +53,12 @@ jobs:
           - name: Template Release Mono (target=template_release)
             target: template_release
             build-mono: true
-            mono-flags: module_mono_enabled=yes mono_glue=yes
+            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
           - name: Template Debug Mono (target=template_debug)
             target: template_debug
             build-mono: true
-            mono-flags: module_mono_enabled=yes mono_glue=yes
+            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
     steps:
       - name: Checkout

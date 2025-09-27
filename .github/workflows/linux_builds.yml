@@ -75,13 +75,13 @@ jobs:
 
           - name: Template Mono (target=template_release arch=x86_64)
             target: template_release
-            scons-flags: arch=x86_64 module_mono_enabled=yes
+            scons-flags: arch=x86_64 module_mono_enabled=yes mono_static=yes
             build-mono: true
             scons-mono-flags: mono_glue=yes
 
           - name: Template Mono (target=template_debug arch=x86_64)
             target: template_debug
-            scons-flags: arch=x86_64 module_mono_enabled=yes
+            scons-flags: arch=x86_64 module_mono_enabled=yes mono_static=yes
             build-mono: true
             scons-mono-flags: mono_glue=yes
 
