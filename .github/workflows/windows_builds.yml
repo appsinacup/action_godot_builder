@@ -45,84 +45,98 @@ jobs:
           - name: Editor (target=editor, arch=x86_64)
             target: editor
             scons-flags: arch=x86_64
+            arch: x86_64
             build-mono: false
             mono-flags: ''
 
           - name: Editor (target=editor, arch=arm64)
             target: editor
             scons-flags: arch=arm64
+            arch: arm64
             build-mono: false
             mono-flags: ''
 
           - name: Template (target=template_release, arch=x86_64)
             target: template_release
             scons-flags: arch=x86_64
+            arch: x86_64
             build-mono: false
             mono-flags: ''
           
           - name: Template (target=template_release, arch=x86)
             target: template_release
             scons-flags: arch=x86
+            arch: x86_64
             build-mono: false
             mono-flags: ''
           
           - name: Template (target=template_release, arch=arm64)
             target: template_release
             scons-flags: arch=arm64
+            arch: arm64
             build-mono: false
             mono-flags: ''
           
           - name: Template (target=template_debug, arch=x86_64)
             target: template_debug
             scons-flags: arch=x86_64
+            arch: x86_64
             build-mono: false
             mono-flags: ''
           
           - name: Template (target=template_debug, arch=x86)
             target: template_debug
             scons-flags: arch=x86
+            arch: x86
             build-mono: false
             mono-flags: ''
           
           - name: Template (target=template_debug, arch=arm64)
             target: template_debug
             scons-flags: arch=arm64
+            arch: arm64
             build-mono: false
             mono-flags: ''
 
           - name: Editor Mono (target=editor, arch=x86_64)
             target: editor
             scons-flags: arch=x86_64
+            arch: x86_64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
           - name: Template Mono (target=template_release, arch=x86_64)
             target: template_release
             scons-flags: arch=x86_64
+            arch: x86_64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
           - name: Template Mono (target=template_debug, arch=x86_64)
             target: template_debug
             scons-flags: arch=x86_64
+            arch: x86_64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
           - name: Editor Mono (target=editor, arch=arm64)
             target: editor
             scons-flags: arch=arm64
+            arch: arm64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
           - name: Template Mono (target=template_release, arch=arm64)
             target: template_release
             scons-flags: arch=arm64
+            arch: arm64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
           - name: Template Mono (target=template_debug, arch=arm64)
             target: template_debug
             scons-flags: arch=arm64
+            arch: arm64
             build-mono: true
             mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
@@ -215,7 +229,6 @@ jobs:
         run: Expand-Archive -Force nir/nir.zip ${{ github.workspace }}/
 
 # Mono
-
       - name: Setup .NET SDK
         if: matrix.build-mono
         uses: actions/setup-dotnet@v4
@@ -226,14 +239,14 @@ jobs:
         if: matrix.build-mono
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 module_mono_enabled=yes mono_glue=no ${{ inputs.lto }} ${{ inputs.module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=${{ matrix.arch }} module_mono_enabled=yes mono_glue=no ${{ inputs.lto }} ${{ inputs.module_flags }}
           platform: windows
           target: editor
 
       - name: Generate C# glue
         if: matrix.build-mono
         run: |
-          .\bin\godot.windows.editor.x86_64.mono.exe --headless --generate-mono-glue .\modules\mono\glue
+          .\bin\godot.windows.editor.${{ matrix.arch }}.mono.exe --headless --generate-mono-glue .\modules\mono\glue
 
 # Compilation
 
