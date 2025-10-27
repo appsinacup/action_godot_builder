@@ -34,13 +34,6 @@ on:
           - "none"
           - "lto=thin"
           - "lto=full"
-      use_encryption_key:
-        description: 'Use Encryption Key.'
-        default: "false"
-        type: choice
-        options:
-          - "true"
-          - "false"
 
 jobs:
   android-build:
@@ -52,7 +45,6 @@ jobs:
       lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
-      use_encryption_key: ${{ inputs.use_encryption_key }}
     secrets: inherit
 
   ios-build:
@@ -64,7 +56,6 @@ jobs:
       lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
-      use_encryption_key: ${{ inputs.use_encryption_key }}
     secrets: inherit
 
   linux-build:
@@ -76,7 +67,6 @@ jobs:
       lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
-      use_encryption_key: ${{ inputs.use_encryption_key }}
     secrets: inherit
   
   macos-build:
@@ -88,7 +78,6 @@ jobs:
       lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
-      use_encryption_key: ${{ inputs.use_encryption_key }}
     secrets: inherit
 
   windows-build:
@@ -100,7 +89,6 @@ jobs:
       lto: ${{ inputs.lto == 'lto=thin' && 'lto=none' || inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
-      use_encryption_key: ${{ inputs.use_encryption_key }}
     secrets: inherit
 
   web-build:
@@ -112,7 +100,6 @@ jobs:
       lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
-      use_encryption_key: ${{ inputs.use_encryption_key }}
     secrets: inherit
 
   release:
@@ -137,5 +124,4 @@ jobs:
       lto: ${{ inputs.lto }}
       module_flags: ${{ inputs.module_flags }}
       template_module_flags: ${{ inputs.template_module_flags }}
-      use_encryption_key: ${{ inputs.use_encryption_key }}
     secrets: inherit

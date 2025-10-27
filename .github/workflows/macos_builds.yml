@@ -20,9 +20,6 @@ on:
       template_module_flags:
         description: 'Extra module flags for template build, e.g. module_webm_enabled=no'
         type: string
-      use_encryption_key:
-        description: 'Whether to use the encryption key for the build (if available)'
-        type: string
 
 # Global Settings
 env:
@@ -77,10 +74,6 @@ jobs:
           ref: ${{ inputs.tag }}
           submodules: recursive
       
-      - name: Export Encryption Key
-        if: ${{ inputs.use_encryption_key == 'true' }}
-        run: echo "SCRIPT_AES256_ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}" >> $GITHUB_ENV
-
       - name: Select Xcode 16
         run: sudo xcode-select -s /Applications/Xcode_16.2.app
       
