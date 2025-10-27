@@ -9,7 +9,7 @@ on:
       base-branch:
         description: 'Base branch to use for the builds'
         type: string
-        default: '4.5'
+        default: '4.6'
       tag:
         description: 'tag to use for downloading the repo'
         type: string
@@ -17,7 +17,7 @@ on:
       tag_release:
         description: 'tag to use for releasing the build'
         type: string
-        default: '4.5.stable'
+        default: '4.6.dev'
       module_flags:
         description: 'Extra module flags, e.g. module_webm_enabled=no'
         type: string
