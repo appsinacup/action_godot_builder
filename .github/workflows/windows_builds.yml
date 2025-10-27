@@ -232,14 +232,14 @@ jobs:
         if: matrix.build-mono
         uses: ./.github/actions/godot-build
         with:
-          scons-flags: ${{ env.SCONSFLAGS }} arch=${{ matrix.arch }} module_mono_enabled=yes mono_glue=no ${{ inputs.lto }} ${{ inputs.module_flags }}
+          scons-flags: ${{ env.SCONSFLAGS }} arch=x86_64 module_mono_enabled=yes mono_glue=no ${{ inputs.lto }} ${{ inputs.module_flags }}
           platform: windows
           target: editor
 
       - name: Generate C# glue
         if: matrix.build-mono
         run: |
-          .\bin\godot.windows.editor.${{ matrix.arch }}.mono.exe --headless --generate-mono-glue .\modules\mono\glue
+          .\bin\godot.windows.editor.x86_64.mono.exe --headless --generate-mono-glue .\modules\mono\glue
 
 # Compilation
 
