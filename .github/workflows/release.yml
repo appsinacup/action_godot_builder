@@ -270,7 +270,8 @@ jobs:
           cp bin/godot.windows.template_release.x86_64.mono.console.exe "release/templates_mono/windows_release_x86_64_console.exe"
 
           cp bin/macos_mono.zip "release/templates_mono/macos.zip"
-          cp bin/godot_ios_mono.zip "release/templates_mono/ios.zip"
+          # TODO re-enable when working
+          #cp bin/godot_ios_mono.zip "release/templates_mono/ios.zip"
           cp -f bin/android_source.mono.zip "release/templates_mono/android_source.zip"
           cp -f bin/android_release_mono.apk "release/templates_mono/android_release.apk"
           cp -f bin/android_debug_mono.apk "release/templates_mono/android_debug.apk"
