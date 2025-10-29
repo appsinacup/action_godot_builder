@@ -88,14 +88,14 @@ jobs:
         if: matrix.build-mono
         run: ./bin/godot.macos.editor.x86_64.mono --headless --generate-mono-glue ./modules/mono/glue
 
-      - name: Compilation Debug
+      - name: Compilation Debug (arm64)
         uses: ./.github/actions/godot-build
         with:
           scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.lto }} ${{ inputs.template_module_flags }} ${{ matrix.scons-mono-flags }}
           platform: ios
           target: template_debug
 
-      - name: Compilation Release
+      - name: Compilation Release (arm64)
         uses: ./.github/actions/godot-build
         with:
           scons-flags: ${{ env.SCONSFLAGS }} arch=arm64 ${{ inputs.lto }} ${{ inputs.template_module_flags }} ${{ matrix.scons-mono-flags }} generate_bundle=yes

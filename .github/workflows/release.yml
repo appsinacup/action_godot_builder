@@ -186,20 +186,20 @@ jobs:
           cp -a work/android_debug/libs/debug/. work/android_src/libs/debug/
           
           ( cd work/android_src && zip -q -9 -r ../../bin/android_source.zip . )
-      
-      - name : Create iOS mono libs
-        run: |
-          mkdir -p bin/ios
-          mkdir -p bin/ios/iphone-mono-libs
-
-          lipo -create bin/libmonosgen-2.0.iphone.arm64.a bin/libmonosgen-2.0.iphone.x86_64.a -output bin/ios/iphone-mono-libs/libmonosgen-2.0.iphone.fat.a
-          lipo -create bin/libmono-native.iphone.arm64.a bin/libmono-native.iphone.x86_64.a -output bin/ios/iphone-mono-libs/libmono-native.iphone.fat.a
-          lipo -create bin/libmono-profiler-log.iphone.arm64.a bin/libmono-profiler-log.iphone.x86_64.a -output bin/ios/iphone-mono-libs/libmono-profiler-log.iphone.fat.a
-
-          # The Mono libraries for the interpreter are not available for simulator builds
-          lipo -create bin/libmono-ee-interp.iphone.arm64.a -output bin/ios/iphone-mono-libs/libmono-ee-interp.iphone.fat.a
-          lipo -create bin/libmono-icall-table.iphone.arm64.a -output bin/ios/iphone-mono-libs/libmono-icall-table.iphone.fat.a
-          lipo -create bin/libmono-ilgen.iphone.arm64.a -output bin/ios/iphone-mono-libs/libmono-ilgen.iphone.fat.a
+      # TODO reenable
+      #- name : Create iOS mono libs
+      #  run: |
+      #    mkdir -p bin/ios
+      #    mkdir -p bin/ios/iphone-mono-libs
+#
+      #    lipo -create bin/libmonosgen-2.0.iphone.arm64.a bin/libmonosgen-2.0.iphone.x86_64.a -output bin/ios/iphone-mono-libs/libmonosgen-2.0.iphone.fat.a
+      #    lipo -create bin/libmono-native.iphone.arm64.a bin/libmono-native.iphone.x86_64.a -output bin/ios/iphone-mono-libs/libmono-native.iphone.fat.a
+      #    lipo -create bin/libmono-profiler-log.iphone.arm64.a bin/libmono-profiler-log.iphone.x86_64.a -output bin/ios/iphone-mono-libs/libmono-profiler-log.iphone.fat.a
+#
+      #    # The Mono libraries for the interpreter are not available for simulator builds
+      #    lipo -create bin/libmono-ee-interp.iphone.arm64.a -output bin/ios/iphone-mono-libs/libmono-ee-interp.iphone.fat.a
+      #    lipo -create bin/libmono-icall-table.iphone.arm64.a -output bin/ios/iphone-mono-libs/libmono-icall-table.iphone.fat.a
+      #    lipo -create bin/libmono-ilgen.iphone.arm64.a -output bin/ios/iphone-mono-libs/libmono-ilgen.iphone.fat.a
 
       - name: Package per-platform editors and templates
         run: |
@@ -261,7 +261,7 @@ jobs:
           cp bin/godot.web.template_release.wasm32.nothreads.dlink.zip "release/templates/web_dlink_nothreads_release.zip"
           cp bin/godot.web.template_debug.wasm32.nothreads.dlink.zip "release/templates/web_dlink_nothreads_debug.zip"
 
-          # Templates (mono variants with fallbacks)
+          # Templates (mono variants)
           cp bin/godot.linuxbsd.template_debug.x86_64.mono "release/templates_mono/linux_debug.x86_64"
           cp bin/godot.linuxbsd.template_release.x86_64.mono "release/templates_mono/linux_release.x86_64"
           cp bin/godot.windows.template_debug.x86_64.mono.exe "release/templates_mono/windows_debug_x86_64.exe"
@@ -274,15 +274,6 @@ jobs:
           cp -f bin/android_source.mono.zip "release/templates_mono/android_source.zip"
           cp -f bin/android_release_mono.apk "release/templates_mono/android_release.apk"
           cp -f bin/android_debug_mono.apk "release/templates_mono/android_debug.apk"
-
-          cp bin/godot.web.template_release.wasm32.zip "release/templates_mono/web_release.zip"
-          cp bin/godot.web.template_debug.wasm32.zip "release/templates_mono/web_debug.zip"
-          cp bin/godot.web.template_release.wasm32.nothreads.zip "release/templates_mono/web_nothreads_release.zip"
-          cp bin/godot.web.template_debug.wasm32.nothreads.zip "release/templates_mono/web_nothreads_debug.zip"
-          cp bin/godot.web.template_release.wasm32.dlink.zip "release/templates_mono/web_dlink_release.zip"
-          cp bin/godot.web.template_debug.wasm32.dlink.zip "release/templates_mono/web_dlink_debug.zip"
-          cp bin/godot.web.template_release.wasm32.nothreads.dlink.zip "release/templates_mono/web_dlink_nothreads_release.zip"
-          cp bin/godot.web.template_debug.wasm32.nothreads.dlink.zip "release/templates_mono/web_dlink_nothreads_debug.zip"
 
           rm -rf release/templates_mono/GodotSharp
           cp -R bin/GodotSharp release/templates_mono/GodotSharp
@@ -311,10 +302,10 @@ jobs:
             # Modules added:
 
             - [tiny_lobby](https://appsinacup.com/tiny-lobby/): Integrate with multiplayer C++ server with Lobby Management and Lua scripting.
-            - [Steam](https://godotsteam.com): Integrate your game with Steam.
+            #- [Steam](https://godotsteam.com): Integrate your game with Steam.
             - [DiscordEmbeddedApp](https://discord.com/developers/docs/developer-tools/embedded-app-sdk): Integrate with Discord for your web game.
-            - [Terminal](https://github.com/markeel/gdterm): Run terminal commands from the Editor.
-            - [VSCode](https://github.com/appsinacup/godot_vscode_ide): Integrate with VSCode inside the editor.
+            #- [Terminal](https://github.com/markeel/gdterm): Run terminal commands from the Editor.
+            #- [VSCode](https://github.com/appsinacup/godot_vscode_ide): Integrate with VSCode inside the editor.
 
             # Info:
 
