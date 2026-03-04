@@ -40,9 +40,9 @@ jobs:
             build-mono: false
             scons-mono-flags: ''
 
-          - name: Template Mono
-            build-mono: true
-            scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
+#          - name: Template Mono
+#            build-mono: true
+#            scons-mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
     steps:
       - name: Checkout
