@@ -1,6 +1,6 @@
 # Godot Builder Action
 
-|[Website](https://appsinacup.com)|[Discord](https://discord.gg/56dMud8HYn)|
+|[Website](https://appsinacup.com)|[Discord](https://discord.gg/v649emcpAu)|
 |-|-|
 
 Action that builds a custom version of the Godot Engine. You can set a custom godot repo, base version and [modules to disable](https://docs.godotengine.org/en/stable/engine_details/development/compiling/optimizing_for_size.html).
