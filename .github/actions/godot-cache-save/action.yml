@@ -7,12 +7,20 @@ inputs:
   scons-cache:
     description: The SCons cache path.
     default: ${{ github.workspace }}/.scons_cache/
+  purge-cache-script:
+    description: Path to purge_cache.py
+    required: false
+    default: misc/scripts/purge_cache.py
 
 runs:
   using: composite
   steps:
+    - name: Purge files before timestamp
+      shell: sh
+      run: python3 ${{ inputs.purge-cache-script }} ${{ env.CACHE_TIMESTAMP }} "${{ inputs.scons-cache }}"
+
     - name: Save SCons cache directory
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: ${{ inputs.scons-cache }}
-        key: ${{ inputs.cache-name }}-${{ env.GODOT_BASE_BRANCH }}-${{ github.ref }}-${{ github.sha }}
+        key: ${{ inputs.cache-name }}|${{ github.ref_name }}|${{ github.sha }}

@@ -6,7 +6,7 @@ on:
         description: 'Base branch to use for the builds'
         type: string
       lto:
-        description: 'LTO mode. Options: "none", "full"'
+        description: 'LTO mode. Options: "none", "thin", "full"'
         type: string
       repo:
         description: 'Repository to use for the build'
@@ -27,7 +27,7 @@ env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   # Used for the cache key. Add version suffix to force clean build.
   GODOT_BASE_BRANCH: ${{ inputs.base-branch }}
-  SCONSFLAGS: verbose=yes warnings=extra d3d12=yes strict_checks=yes "angle_libs=${{ github.workspace }}/" "mesa_libs=${{ github.workspace }}/" debug_symbols=no ${{ inputs.module_flags }} use_static_cpp=yes
+  SCONSFLAGS: verbose=yes warnings=extra d3d12=yes strict_checks=yes debug_symbols=no ${{ inputs.module_flags }} use_static_cpp=yes "angle_libs=${{ github.workspace }}/" "accesskit_sdk_path=${{ github.workspace }}/accesskit-c-0.18.0/"
   SCONS_CACHE_MSVC_CONFIG: true
 
 jobs:
@@ -87,45 +87,45 @@ jobs:
             build-mono: false
             mono-flags: ''
 
-#          - name: Editor Mono (target=editor, arch=x86_64)
-#            target: editor
-#            scons-flags: arch=x86_64
-#            build-mono: true
-#            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
-#
-#          - name: Template Mono (target=template_release, arch=x86_64)
-#            target: template_release
-#            scons-flags: arch=x86_64
-#            build-mono: true
-#            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
-#
-#          - name: Template Mono (target=template_debug, arch=x86_64)
-#            target: template_debug
-#            scons-flags: arch=x86_64
-#            build-mono: true
-#            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
-#
-#          - name: Editor Mono (target=editor, arch=arm64)
-#            target: editor
-#            scons-flags: arch=arm64
-#            build-mono: true
-#            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
-#
-#          - name: Template Mono (target=template_release, arch=arm64)
-#            target: template_release
-#            scons-flags: arch=arm64
-#            build-mono: true
-#            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
-#
-#          - name: Template Mono (target=template_debug, arch=arm64)
-#            target: template_debug
-#            scons-flags: arch=arm64
-#            build-mono: true
-#            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
+          - name: Editor Mono (target=editor, arch=x86_64)
+            target: editor
+            scons-flags: arch=x86_64
+            build-mono: true
+            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
+
+          - name: Template Mono (target=template_release, arch=x86_64)
+            target: template_release
+            scons-flags: arch=x86_64
+            build-mono: true
+            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
+
+          - name: Template Mono (target=template_debug, arch=x86_64)
+            target: template_debug
+            scons-flags: arch=x86_64
+            build-mono: true
+            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
+
+          - name: Editor Mono (target=editor, arch=arm64)
+            target: editor
+            scons-flags: arch=arm64
+            build-mono: true
+            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
+
+          - name: Template Mono (target=template_release, arch=arm64)
+            target: template_release
+            scons-flags: arch=arm64
+            build-mono: true
+            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
+
+          - name: Template Mono (target=template_debug, arch=arm64)
+            target: template_debug
+            scons-flags: arch=arm64
+            build-mono: true
+            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ inputs.repo }}
           ref: ${{ inputs.tag }}
@@ -143,74 +143,60 @@ jobs:
       - name: Download Direct3D 12 SDK components
         run: python ./misc/scripts/install_d3d12_sdk_windows.py
 
-# Angle
-
-      - name: Download pre-built ANGLE static libraries for x86_64
+      - name: Download pre-built ANGLE static libraries (x86_64)
         if: matrix.scons-flags == 'arch=x86_64'
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
           repo: godotengine/godot-angle-static
           version: tags/chromium/6601.2
           file: godot-angle-static-x86_64-msvc-release.zip
-          target: angle/angle.zip
-      
-      - name: Download pre-built ANGLE static libraries for x86_32
+          target: angle/angle_x86_64.zip
+
+      - name: Extract pre-built ANGLE static libraries (x86_64)
+        if: matrix.scons-flags == 'arch=x86_64'
+        run: Expand-Archive -Force angle/angle_x86_64.zip ${{ github.workspace }}/
+
+      - name: Download pre-built ANGLE static libraries (x86_32)
         if: matrix.scons-flags == 'arch=x86'
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
           repo: godotengine/godot-angle-static
           version: tags/chromium/6601.2
           file: godot-angle-static-x86_32-msvc-release.zip
-          target: angle/angle.zip
-      
-      - name: Download pre-built ANGLE static libraries for arm64
+          target: angle/angle_x86_32.zip
+
+      - name: Extract pre-built ANGLE static libraries (x86_32)
+        if: matrix.scons-flags == 'arch=x86'
+        run: Expand-Archive -Force angle/angle_x86_32.zip ${{ github.workspace }}/
+
+      - name: Download pre-built ANGLE static libraries (arm64)
         if: matrix.scons-flags == 'arch=arm64'
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
           repo: godotengine/godot-angle-static
           version: tags/chromium/6601.2
           file: godot-angle-static-arm64-msvc-release.zip
-          target: angle/angle.zip
+          target: angle/angle_arm64.zip
 
-      - name: Extract pre-built ANGLE static libraries
-        run: Expand-Archive -Force angle/angle.zip ${{ github.workspace }}/
-
-# NIR
-
-      - name: Download pre-built NIR
-        if: matrix.scons-flags == 'arch=x86_64'
-        uses: dsaltares/fetch-gh-release-asset@1.1.2
-        with:
-          repo: godotengine/godot-nir-static
-          version: tags/23.1.9-1
-          file: godot-nir-static-x86_64-msvc-release.zip
-          target: nir/nir.zip
-
-      - name: Download pre-built NIR for x86_32
-        if: matrix.scons-flags == 'arch=x86'
-        uses: dsaltares/fetch-gh-release-asset@1.1.2
-        with:
-          repo: godotengine/godot-nir-static
-          version: tags/23.1.9-1
-          file: godot-nir-static-x86_32-msvc-release.zip
-          target: nir/nir.zip
-      
-      - name: Download pre-built NIR for arm64
+      - name: Extract pre-built ANGLE static libraries (arm64)
         if: matrix.scons-flags == 'arch=arm64'
+        run: Expand-Archive -Force angle/angle_arm64.zip ${{ github.workspace }}/
+
+      - name: Download pre-built AccessKit
         uses: dsaltares/fetch-gh-release-asset@1.1.2
         with:
-          repo: godotengine/godot-nir-static
-          version: tags/23.1.9-1
-          file: godot-nir-static-arm64-msvc-release.zip
-          target: nir/nir.zip
-      
-      - name: Extract pre-built NIR
-        run: Expand-Archive -Force nir/nir.zip ${{ github.workspace }}/
+          repo: AccessKit/accesskit-c
+          version: tags/0.18.0
+          file: accesskit-c-0.18.0.zip
+          target: accesskit-c-0.18.0/accesskit_c.zip
+
+      - name: Extract pre-built AccessKit
+        run: unzip -o accesskit-c-0.18.0/accesskit_c.zip
 
 # Mono
       - name: Setup .NET SDK
         if: matrix.build-mono
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '6.0.x'
 
@@ -245,10 +231,18 @@ jobs:
           platform: windows
           target: ${{ matrix.target }}
 
+      - name: Checkout builder repo (cache purge script)
+        uses: actions/checkout@v6
+        with:
+          repository: appsinacup/action_godot_builder
+          path: builder_repo
+          fetch-depth: 1
+
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
           cache-name: windows-${{ matrix.target }}${{ matrix.mono-flags }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
+          purge-cache-script: builder_repo/misc/scripts/purge_cache.py
         continue-on-error: true
 
       - name: Build .NET solutions
@@ -262,7 +256,7 @@ jobs:
           Remove-Item bin/* -Include *.exp,*.lib,*.pdb -Force
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-${{ matrix.target }}${{ matrix.mono-flags }}-${{ matrix.scons-flags }}-${{ inputs.lto }}
           path: bin

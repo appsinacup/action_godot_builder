@@ -32,3 +32,9 @@ Similar to how godot does, so you can then use it to build or develop your game,
 ![release_example](docs/release_example.png)
 
 From here, you download the editor if you need it, if not you just download the export templates and use them locally (by replacing the ones you already had).
+
+## How the actions were created
+
+The build actions are based on the actions from the [godot repo](https://github.com/godotengine/godot/tree/master/.github/workflows).
+
+The release action is meant to take the artifacts and replicate the asset creation of the [godot repo releases](https://github.com/godotengine/godot/releases/).
