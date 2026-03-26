@@ -300,8 +300,8 @@ jobs:
           cp bin/godot.linuxbsd.template_debug.x86_64.mono "release/templates_mono/linux_debug.x86_64"
           chmod +x release/templates_mono/linux_release.x86_64 release/templates_mono/linux_debug.x86_64
           cp -f bin/android_source.mono.zip "release/templates_mono/android_source.zip"
-          cp -f bin/android_release_mono.apk "release/templates_mono/android_release.apk"
-          cp -f bin/android_debug_mono.apk "release/templates_mono/android_debug.apk"
+          cp -f bin/android_monoRelease.apk "release/templates_mono/android_release.apk"
+          cp -f bin/android_monoDebug.apk "release/templates_mono/android_debug.apk"
           cp -f bin/godot_ios_mono.zip "release/templates_mono/ios.zip"
           printf "%s" "${VERSION_CLEAN}" > release/templates_mono/version.txt
 
