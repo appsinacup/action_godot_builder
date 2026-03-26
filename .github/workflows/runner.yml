@@ -31,7 +31,7 @@ on:
         type: choice
         default: "lto=thin"
         options:
-          - "none"
+          - "lto=none"
           - "lto=thin"
           - "lto=full"
 

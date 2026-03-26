@@ -41,13 +41,13 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ inputs.repo }}
           ref: ${{ inputs.tag }}
           submodules: recursive
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: bin
           merge-multiple: true
@@ -58,18 +58,19 @@ jobs:
       - name: Setup Python and SCons
         uses: ./.github/actions/godot-deps
 
-      - name: Select Xcode 16
-        run: sudo xcode-select -s /Applications/Xcode_16.2.app
+      - name: Select Xcode 26
+        run: sudo xcode-select -s /Applications/Xcode_26.0.1.app
 
-      - name: Checkout script repo for install_vulkan_sdk_macos.sh
-        uses: actions/checkout@v4
+      - name: Checkout builder scripts (Vulkan, etc.)
+        uses: actions/checkout@v6
         with:
           repository: appsinacup/action_godot_builder
-          path: misc/scripts
+          path: builder_repo
+          fetch-depth: 1
 
       - name: Setup Vulkan SDK
         run: |
-          sh misc/scripts/install_vulkan_sdk_macos.sh
+          sh builder_repo/install_vulkan_sdk_macos.sh
 
       # https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development
       - name: Install the Apple certificate
@@ -129,6 +130,8 @@ jobs:
 
           zip -q -9 -r "Godot_mono.universal.zip" bin/Godot_mono.app
 
+          /Applications/Xcode.app/Contents/Developer/usr/bin/notarytool store-credentials "AppleID" --apple-id "${{ secrets.APPLE_ID }}" --password "${{ secrets.APP_SPECIFIC_PASSWORD }}" --team-id "${{ secrets.APPLE_TEAM_ID }}"
+
           /Applications/Xcode.app/Contents/Developer/usr/bin/notarytool submit Godot_mono.universal.zip --wait --keychain-profile "AppleID"
 
           xcrun stapler staple bin/Godot_mono.app
@@ -151,6 +154,7 @@ jobs:
             exit 0
           fi
           cp -r misc/dist/macos_tools.app ./bin/Godot_mono.app
+          cp -r bin/GodotSharp bin/Godot_mono.app/Contents/Resources
           mkdir -p bin/Godot_mono.app/Contents/MacOS
           cp bin/godot.macos.editor.mono.universal bin/Godot_mono.app/Contents/MacOS/Godot
           chmod +x bin/Godot_mono.app/Contents/MacOS/Godot
@@ -168,16 +172,16 @@ jobs:
       - name: Mac Create Template Bundle (Mono)
         run: |
           set -e
-          if [ ! -f bin/godot.macos.template_release.mono.universal ] || [ ! -f bin/godot.macos.template_debug.mono.universal ]; then
+          if [ ! -f bin/godot.macos.template_release.mono.universal ]; then
             echo "Mono macOS template binaries not found, skipping."
             exit 0
           fi
-          cp -r misc/dist/macos_template.app ./bin/macos_template_mono.app
-          mkdir -p bin/macos_template_mono.app/Contents/MacOS
-          cp bin/godot.macos.template_release.mono.universal bin/macos_template_mono.app/Contents/MacOS/godot_macos_release.universal
-          cp bin/godot.macos.template_debug.mono.universal bin/macos_template_mono.app/Contents/MacOS/godot_macos_debug.universal
-          chmod +x bin/macos_template_mono.app/Contents/MacOS/godot_macos*
-          cd bin && zip -q -9 -r macos_mono.zip macos_template_mono.app && cd ..
+          cp -r misc/dist/macos_template.app ./bin/macos_template.app
+          mkdir -p bin/macos_template.app/Contents/MacOS
+          cp bin/godot.macos.template_release.mono.universal bin/macos_template.app/Contents/MacOS/godot_macos_release.universal
+          cp bin/godot.macos.template_debug.mono.universal bin/macos_template.app/Contents/MacOS/godot_macos_debug.universal
+          chmod +x bin/macos_template.app/Contents/MacOS/godot_macos*
+          cd bin && zip -q -9 -r macos_mono.zip macos_template.app && cd ..
 
       - name: Assemble Android sources (debug + release) into one zip
         run: |
@@ -191,53 +195,46 @@ jobs:
           cp -a work/android_debug/libs/debug/. work/android_src/libs/debug/
           
           ( cd work/android_src && zip -q -9 -r ../../bin/android_source.zip . )
-      # TODO reenable
-      #- name : Create iOS mono libs
-      #  run: |
-      #    mkdir -p bin/ios
-      #    mkdir -p bin/ios/iphone-mono-libs
-#
-      #    lipo -create bin/libmonosgen-2.0.iphone.arm64.a bin/libmonosgen-2.0.iphone.x86_64.a -output bin/ios/iphone-mono-libs/libmonosgen-2.0.iphone.fat.a
-      #    lipo -create bin/libmono-native.iphone.arm64.a bin/libmono-native.iphone.x86_64.a -output bin/ios/iphone-mono-libs/libmono-native.iphone.fat.a
-      #    lipo -create bin/libmono-profiler-log.iphone.arm64.a bin/libmono-profiler-log.iphone.x86_64.a -output bin/ios/iphone-mono-libs/libmono-profiler-log.iphone.fat.a
-#
-      #    # The Mono libraries for the interpreter are not available for simulator builds
-      #    lipo -create bin/libmono-ee-interp.iphone.arm64.a -output bin/ios/iphone-mono-libs/libmono-ee-interp.iphone.fat.a
-      #    lipo -create bin/libmono-icall-table.iphone.arm64.a -output bin/ios/iphone-mono-libs/libmono-icall-table.iphone.fat.a
-      #    lipo -create bin/libmono-ilgen.iphone.arm64.a -output bin/ios/iphone-mono-libs/libmono-ilgen.iphone.fat.a
+
+      - name: Assemble Android mono sources (debug + release) into one zip
+        run: |
+          mkdir -p work/android_mono_release work/android_mono_debug work/android_mono_src
+          unzip -q bin/android_source.mono.release.zip -d work/android_mono_release
+          unzip -q bin/android_source.mono.debug.zip -d work/android_mono_debug
+
+          cp -a work/android_mono_release/. work/android_mono_src/
+          mkdir -p work/android_mono_src/libs/debug work/android_mono_src/libs/release
+
+          cp -a work/android_mono_debug/libs/debug/. work/android_mono_src/libs/debug/
+
+          ( cd work/android_mono_src && zip -q -9 -r ../../bin/android_source.mono.zip . )
 
       - name: Package per-platform editors and templates
         run: |
           set -e
-          mkdir -p release release/templates
+          mkdir -p release release/templates release/templates_mono
           VERSION=${{ inputs.tag_release }}
           VERSION_CLEAN=${VERSION//-/.}
 
-          # Rename editors for packaging
+          # --- Non-mono editors ---
           mv bin/godot.linuxbsd.editor.x86_64 bin/Godot_v${VERSION}_linux.x86_64
-          # mv bin/godot.linuxbsd.editor.x86_64.mono bin/Godot_v${VERSION}_linux_mono.x86_64
           mv bin/godot.windows.editor.x86_64.exe bin/Godot_v${VERSION}_win64.exe
-          # mv bin/godot.windows.editor.x86_64.mono.exe bin/Godot_v${VERSION}_win64_mono.exe
           mv bin/godot.windows.editor.arm64.exe bin/Godot_v${VERSION}_windows_arm64.exe
-          # mv bin/godot.windows.editor.arm64.mono.exe bin/Godot_v${VERSION}_windows_arm64_mono.exe
 
-          echo "Editors renamed to:"
+          echo "Non-mono editors renamed; listing bin:"
           ls bin
 
           cd bin
           zip -q -9 -r ../release/Godot_v${VERSION}_linux.x86_64.zip Godot_v${VERSION}_linux.x86_64
-          # zip -q -9 -r ../release/Godot_v${VERSION}_linux_mono.x86_64.zip Godot_v${VERSION}_linux_mono.x86_64
           zip -q -9 -r ../release/Godot_v${VERSION}_win64.exe.zip Godot_v${VERSION}_win64.exe
-          # zip -q -9 -r ../release/Godot_v${VERSION}_win64_mono.exe.zip Godot_v${VERSION}_win64_mono.exe
           zip -q -9 -r ../release/Godot_v${VERSION}_windows_arm64.exe.zip Godot_v${VERSION}_windows_arm64.exe
-          # zip -q -9 -r ../release/Godot_v${VERSION}_windows_arm64_mono.exe.zip Godot_v${VERSION}_windows_arm64_mono.exe
           zip -q -9 -r ../release/Godot_v${VERSION}_macos.universal.zip Godot.app
-          # zip -q -9 -r ../release/Godot_v${VERSION}_macos.universal.mono.zip Godot_mono.app
           cd ..
 
-          # Templates (non-mono)
+          # --- Templates (non-mono) ---
           cp bin/godot.linuxbsd.template_debug.x86_64 "release/templates/linux_debug.x86_64"
           cp bin/godot.linuxbsd.template_release.x86_64 "release/templates/linux_release.x86_64"
+          chmod +x release/templates/linux_debug.x86_64 release/templates/linux_release.x86_64
           cp bin/godot.windows.template_debug.x86_64.exe "release/templates/windows_debug_x86_64.exe"
           cp bin/godot.windows.template_release.x86_64.exe "release/templates/windows_release_x86_64.exe"
           cp bin/godot.windows.template_debug.x86_32.exe "release/templates/windows_debug_x86_32.exe"
@@ -266,29 +263,58 @@ jobs:
           cp bin/godot.web.template_release.wasm32.nothreads.dlink.zip "release/templates/web_dlink_nothreads_release.zip"
           cp bin/godot.web.template_debug.wasm32.nothreads.dlink.zip "release/templates/web_dlink_nothreads_debug.zip"
 
-          # mkdir -p release/templates_mono
-          # cp bin/godot.linuxbsd.template_debug.x86_64.mono "release/templates_mono/linux_debug.x86_64"
-          # cp bin/godot.linuxbsd.template_release.x86_64.mono "release/templates_mono/linux_release.x86_64"
-          # cp bin/godot.windows.template_debug.x86_64.mono.exe "release/templates_mono/windows_debug_x86_64.exe"
-          # cp bin/godot.windows.template_release.x86_64.mono.exe "release/templates_mono/windows_release_x86_64.exe"
-          # cp bin/godot.windows.template_debug.x86_64.mono.console.exe "release/templates_mono/windows_debug_x86_64_console.exe"
-          # cp bin/godot.windows.template_release.x86_64.mono.console.exe "release/templates_mono/windows_release_x86_64_console.exe"
-          # cp bin/macos_mono.zip "release/templates_mono/macos.zip"
-          # cp -f bin/android_source.mono.zip "release/templates_mono/android_source.zip"
-          # cp -f bin/android_release_mono.apk "release/templates_mono/android_release.apk"
-          # cp -f bin/android_debug_mono.apk "release/templates_mono/android_debug.apk"
-          # rm -rf release/templates_mono/GodotSharp
-          # cp -R bin/GodotSharp release/templates_mono/GodotSharp
-
           printf "%s" "${VERSION_CLEAN}" > release/templates/version.txt
-          # printf "%s" "${VERSION_CLEAN}" > release/templates_mono/version.txt
+
+          # --- Mono editors (official Godot-style names) ---
+          mv bin/godot.windows.editor.x86_64.mono.exe bin/Godot_v${VERSION}_mono_win64.exe
+          mv bin/godot.windows.editor.arm64.mono.exe bin/Godot_v${VERSION}_mono_windows_arm64.exe
+          mv bin/godot.linuxbsd.editor.x86_64.mono bin/Godot_v${VERSION}_mono_linux.x86_64
+
+          cd bin
+          mkdir -p Godot_v${VERSION}_mono_win64
+          cp Godot_v${VERSION}_mono_win64.exe Godot_v${VERSION}_mono_win64/
+          cp -R GodotSharp Godot_v${VERSION}_mono_win64/
+          zip -q -9 -r ../release/Godot_v${VERSION}_mono_win64.zip Godot_v${VERSION}_mono_win64
+
+          mkdir -p Godot_v${VERSION}_mono_windows_arm64
+          cp Godot_v${VERSION}_mono_windows_arm64.exe Godot_v${VERSION}_mono_windows_arm64/
+          cp -R GodotSharp Godot_v${VERSION}_mono_windows_arm64/
+          zip -q -9 -r ../release/Godot_v${VERSION}_mono_windows_arm64.zip Godot_v${VERSION}_mono_windows_arm64
+
+          zip -q -9 -r ../release/Godot_v${VERSION}_mono_macos.universal.zip Godot_mono.app
+
+          mkdir -p Godot_v${VERSION}_mono_linux_x86_64
+          cp Godot_v${VERSION}_mono_linux.x86_64 Godot_v${VERSION}_mono_linux_x86_64/
+          chmod +x Godot_v${VERSION}_mono_linux_x86_64/Godot_v${VERSION}_mono_linux.x86_64
+          cp -R GodotSharp Godot_v${VERSION}_mono_linux_x86_64/
+          zip -q -9 -r ../release/Godot_v${VERSION}_mono_linux_x86_64.zip Godot_v${VERSION}_mono_linux_x86_64
+          cd ..
+
+          # --- Templates (Mono) ---
+          cp bin/godot.windows.template_release.x86_64.mono.exe "release/templates_mono/windows_release_x86_64.exe"
+          cp bin/godot.windows.template_release.x86_64.mono.console.exe "release/templates_mono/windows_release_x86_64_console.exe"
+          cp bin/godot.windows.template_debug.x86_64.mono.exe "release/templates_mono/windows_debug_x86_64.exe"
+          cp bin/godot.windows.template_debug.x86_64.mono.console.exe "release/templates_mono/windows_debug_x86_64_console.exe"
+          cp bin/macos_mono.zip "release/templates_mono/macos.zip"
+          cp bin/godot.linuxbsd.template_release.x86_64.mono "release/templates_mono/linux_release.x86_64"
+          cp bin/godot.linuxbsd.template_debug.x86_64.mono "release/templates_mono/linux_debug.x86_64"
+          chmod +x release/templates_mono/linux_release.x86_64 release/templates_mono/linux_debug.x86_64
+          cp -f bin/android_source.mono.zip "release/templates_mono/android_source.zip"
+          cp -f bin/android_monoRelease.apk "release/templates_mono/android_release.apk"
+          cp -f bin/android_monoDebug.apk "release/templates_mono/android_debug.apk"
+          cp -f bin/godot_ios_mono.zip "release/templates_mono/ios.zip"
+          printf "%s" "${VERSION_CLEAN}" > release/templates_mono/version.txt
 
           ls -R release/templates
-          # ls -R release/templates_mono
+          ls -R release/templates_mono
 
           cd release
           zip -q -r Godot_v${VERSION}_export_templates.tpz templates
-          # zip -q -r Godot_v${VERSION}_mono_export_templates.tpz templates_mono
+          rm -rf mono_tpz_payload
+          mkdir -p mono_tpz_payload/templates
+          cp -a templates_mono/. mono_tpz_payload/templates/
+          (cd mono_tpz_payload && zip -q -r ../Godot_v${VERSION}_mono_export_templates.tpz templates)
+          cd ..
       
       - name: List release directory
         run: ls -R release
@@ -318,11 +344,12 @@ jobs:
             - Build Branch: ${{ inputs.base-branch }}
           files: |
             release/Godot_v${{ inputs.tag_release }}_linux.x86_64.zip
-            # release/Godot_v${{ inputs.tag_release }}_linux_mono.x86_64.zip
             release/Godot_v${{ inputs.tag_release }}_win64.exe.zip
-            # release/Godot_v${{ inputs.tag_release }}_win64_mono.exe.zip
             release/Godot_v${{ inputs.tag_release }}_windows_arm64.exe.zip
             release/Godot_v${{ inputs.tag_release }}_macos.universal.zip
-            # release/Godot_v${{ inputs.tag_release }}_macos.universal.mono.zip
             release/Godot_v${{ inputs.tag_release }}_export_templates.tpz
-            # release/Godot_v${{ inputs.tag_release }}_mono_export_templates.tpz
+            release/Godot_v${{ inputs.tag_release }}_mono_win64.zip
+            release/Godot_v${{ inputs.tag_release }}_mono_windows_arm64.zip
+            release/Godot_v${{ inputs.tag_release }}_mono_macos.universal.zip
+            release/Godot_v${{ inputs.tag_release }}_mono_linux_x86_64.zip
+            release/Godot_v${{ inputs.tag_release }}_mono_export_templates.tpz

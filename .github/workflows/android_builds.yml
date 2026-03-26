@@ -47,26 +47,26 @@ jobs:
             build-mono: false
             mono-flags: ''
 
-#          - name: Template Release Mono (target=template_release)
-#            target: template_release
-#            build-mono: true
-#            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
-#
-#          - name: Template Debug Mono (target=template_debug)
-#            target: template_debug
-#            build-mono: true
-#            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
+          - name: Template Release Mono (target=template_release)
+            target: template_release
+            build-mono: true
+            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
+
+          - name: Template Debug Mono (target=template_debug)
+            target: template_debug
+            build-mono: true
+            mono-flags: module_mono_enabled=yes mono_glue=yes mono_static=yes
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ inputs.repo }}
           ref: ${{ inputs.tag }}
           submodules: recursive
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
@@ -74,7 +74,7 @@ jobs:
       - name: Restore Godot build cache
         uses: ./.github/actions/godot-cache-restore
         with:
-          cache-name: android-${{ matrix.target }}${{ matrix.mono-flags }}-${{ inputs.lto }}
+          cache-name: android-${{ matrix.target }}-${{ inputs.lto }}${{ matrix.build-mono && '-mono' || '' }}
         continue-on-error: true
 
       - name: Setup Python and SCons
@@ -88,7 +88,7 @@ jobs:
 
       - name: Setup .NET SDK
         if: matrix.build-mono
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '6.0.x'
 
@@ -153,10 +153,18 @@ jobs:
           platform: android
           target: ${{ matrix.target }}
 
+      - name: Checkout builder repo (cache purge script)
+        uses: actions/checkout@v6
+        with:
+          repository: appsinacup/action_godot_builder
+          path: builder_repo
+          fetch-depth: 1
+
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save
         with:
-          cache-name: android-${{ matrix.target }}${{ matrix.mono-flags }}-${{ inputs.lto }}
+          cache-name: android-${{ matrix.target }}-${{ inputs.lto }}${{ matrix.build-mono && '-mono' || '' }}
+          purge-cache-script: builder_repo/misc/scripts/purge_cache.py
         continue-on-error: true
 
       - name: Build .NET solutions
@@ -166,15 +174,23 @@ jobs:
           ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=android --werror
 
       - name: Rename Android sources for release
-        if: ${{ matrix.target == 'template_release' }}
+        if: ${{ matrix.target == 'template_release' && matrix.build-mono == false }}
         run: mv bin/android_source.zip bin/android_source.release.zip
 
       - name: Rename Android sources for debug
-        if: ${{ matrix.target == 'template_debug' }}
+        if: ${{ matrix.target == 'template_debug' && matrix.build-mono == false }}
         run: mv bin/android_source.zip bin/android_source.debug.zip
 
+      - name: Rename Android sources for release (Mono)
+        if: ${{ matrix.target == 'template_release' && matrix.build-mono == true }}
+        run: mv bin/android_source.zip bin/android_source.mono.release.zip
+
+      - name: Rename Android sources for debug (Mono)
+        if: ${{ matrix.target == 'template_debug' && matrix.build-mono == true }}
+        run: mv bin/android_source.zip bin/android_source.mono.debug.zip
+
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: android-${{ matrix.target }}-${{ inputs.lto }}-${{ matrix.mono-flags }}
+          name: android-${{ matrix.target }}-${{ inputs.lto }}${{ matrix.build-mono && '-mono' || '' }}
           path: bin
