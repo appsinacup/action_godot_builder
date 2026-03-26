@@ -327,16 +327,6 @@ jobs:
           repository: ${{ inputs.repo }}
           token: ${{ secrets.GH_TOKEN }}
           body: |
-            # Modules added:
-
-            - [tiny_lobby](https://appsinacup.com/tiny-lobby/): Integrate with multiplayer C++ server with Lobby Management and Lua scripting.
-            #- [Steam](https://godotsteam.com): Integrate your game with Steam.
-            - [DiscordEmbeddedApp](https://discord.com/developers/docs/developer-tools/embedded-app-sdk): Integrate with Discord for your web game.
-            #- [Terminal](https://github.com/markeel/gdterm): Run terminal commands from the Editor.
-            #- [VSCode](https://github.com/appsinacup/godot_vscode_ide): Integrate with VSCode inside the editor.
-
-            # Info:
-
             - Repo: [${{ inputs.repo }}](https://github.com/${{ inputs.repo }})
             - Base Version: ${{ inputs.tag_release }}
             - Optimization: ${{ inputs.lto }}
