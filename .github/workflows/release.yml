@@ -209,20 +209,6 @@ jobs:
 
           ( cd work/android_mono_src && zip -q -9 -r ../../bin/android_source.mono.zip . )
 
-      - name: Create iOS mono libs
-        run: |
-          mkdir -p bin/ios
-          mkdir -p bin/ios/iphone-mono-libs
-
-          lipo -create bin/libmonosgen-2.0.iphone.arm64.a bin/libmonosgen-2.0.iphone.x86_64.a -output bin/ios/iphone-mono-libs/libmonosgen-2.0.iphone.fat.a
-          lipo -create bin/libmono-native.iphone.arm64.a bin/libmono-native.iphone.x86_64.a -output bin/ios/iphone-mono-libs/libmono-native.iphone.fat.a
-          lipo -create bin/libmono-profiler-log.iphone.arm64.a bin/libmono-profiler-log.iphone.x86_64.a -output bin/ios/iphone-mono-libs/libmono-profiler-log.iphone.fat.a
-
-          # The Mono libraries for the interpreter are not available for simulator builds
-          lipo -create bin/libmono-ee-interp.iphone.arm64.a -output bin/ios/iphone-mono-libs/libmono-ee-interp.iphone.fat.a
-          lipo -create bin/libmono-icall-table.iphone.arm64.a -output bin/ios/iphone-mono-libs/libmono-icall-table.iphone.fat.a
-          lipo -create bin/libmono-ilgen.iphone.arm64.a -output bin/ios/iphone-mono-libs/libmono-ilgen.iphone.fat.a
-
       - name: Package per-platform editors and templates
         run: |
           set -e
@@ -317,8 +303,6 @@ jobs:
           cp -f bin/android_release_mono.apk "release/templates_mono/android_release.apk"
           cp -f bin/android_debug_mono.apk "release/templates_mono/android_debug.apk"
           cp -f bin/godot_ios_mono.zip "release/templates_mono/ios.zip"
-          rm -rf release/templates_mono/GodotSharp
-          cp -R bin/GodotSharp release/templates_mono/GodotSharp
           printf "%s" "${VERSION_CLEAN}" > release/templates_mono/version.txt
 
           ls -R release/templates
@@ -326,7 +310,10 @@ jobs:
 
           cd release
           zip -q -r Godot_v${VERSION}_export_templates.tpz templates
-          zip -q -r Godot_v${VERSION}_mono_export_templates.tpz templates_mono
+          rm -rf mono_tpz_payload
+          mkdir -p mono_tpz_payload/templates
+          cp -a templates_mono/. mono_tpz_payload/templates/
+          (cd mono_tpz_payload && zip -q -r ../Godot_v${VERSION}_mono_export_templates.tpz templates)
           cd ..
       
       - name: List release directory
