@@ -122,11 +122,6 @@ jobs:
           dotnet --info
           ./modules/mono/build_scripts/build_assemblies.py --godot-output-dir=./bin --godot-platform=ios --werror
 
-      - name: Rename iOS export zip for Mono (avoid artifact merge collision)
-        if: matrix.build-mono
-        run: |
-          if [ -f bin/godot_ios.zip ]; then mv bin/godot_ios.zip bin/godot_ios_mono.zip; fi
-
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:

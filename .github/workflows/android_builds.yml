@@ -189,12 +189,6 @@ jobs:
         if: ${{ matrix.target == 'template_debug' && matrix.build-mono == true }}
         run: mv bin/android_source.zip bin/android_source.mono.debug.zip
 
-      - name: Rename Android APKs for Mono release packaging
-        if: matrix.build-mono
-        run: |
-          if [ -f bin/android_release.apk ]; then mv bin/android_release.apk bin/android_release_mono.apk; fi
-          if [ -f bin/android_debug.apk ]; then mv bin/android_debug.apk bin/android_debug_mono.apk; fi
-
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
