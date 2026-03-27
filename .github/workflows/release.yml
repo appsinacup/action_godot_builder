@@ -11,6 +11,10 @@ on:
       repo:
         description: 'Repository to use for the build'
         type: string
+      release_repo:
+        description: 'Repository to use for the release'
+        type: string
+        default: ''
       tag:
         description: 'tag to use for the build'
         type: string
@@ -324,7 +328,7 @@ jobs:
         with:
           tag_name: ${{ inputs.tag }}-${{ inputs.tag_release }}_${{ inputs.template_module_flags }}
           name: "Gonuts ${{ inputs.tag_release }} - ${{ inputs.template_module_flags }}"
-          repository: ${{ inputs.repo }}
+          repository: ${{ inputs.release_repo != '' && inputs.release_repo || github.repository }}
           token: ${{ secrets.GH_TOKEN }}
           body: |
             - Repo: [${{ inputs.repo }}](https://github.com/${{ inputs.repo }})
